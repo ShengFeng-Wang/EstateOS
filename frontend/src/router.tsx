@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './routes/AppLayout';
+import { DigitalTwinPage } from './routes/DigitalTwinPage';
 import { LoginPage } from './routes/LoginPage';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { OverviewPage } from './routes/OverviewPage';
@@ -17,7 +18,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/overview', element: <OverviewPage /> },
-          { path: '/digital-twin', element: <PlaceholderPage title="Digital Twin City" /> },
+          { path: '/digital-twin', element: <DigitalTwinPage /> },
           { path: '/properties', element: <PropertiesListPage /> },
           { path: '/properties/:id', element: <PlaceholderPage title="Property Detail" /> },
           { path: '/tenants', element: <PlaceholderPage title="Tenants" /> },
