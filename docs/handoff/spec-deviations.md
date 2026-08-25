@@ -1,0 +1,11 @@
+# Spec Deviations
+
+Claude Code records places where the shipped implementation intentionally differs from the literal Figma/spec data, with rationale. Not for open decisions — those go in `docs/handoff/questions-for-codex.md`.
+
+## 2026-08-25 — AppSidebar default nav-item text color
+
+**Spec:** Figma node `#I37:117;22:15;16:74` (and the other default-state nav items inside the `AppSidebar` instance, frame `#33:2`) sets nav label text fill to `#17201C` (Primary Ink) on the sidebar's `#0A0F0D` (Observation Dark) background — a contrast ratio near 1:1, effectively invisible. The `SidebarItem` component's `State=Default` variant appears to have been authored against the light demo background on the "01 Components" page and never given a dark-surface override before being instantiated in the dark sidebar.
+
+**Deviation:** Implemented default (inactive) nav item text as `rgb(241 240 233 / 70%)` (Warm Workspace at reduced opacity) instead of the literal `#17201C`, with full opacity on hover. The Active state's text color (`#F1F0E9` on Asset Green) was implemented as-authored — that one has correct contrast.
+
+**Why:** This isn't a product/visual decision — invisible navigation labels are a legibility defect, not an approved design choice. Codex's own `estateos-design-system.md` update earlier the same day added a `Warm Accent Text` token specifically to fix an analogous contrast problem (Spatial Signal green on light text), showing this class of fix is within Claude Code's remit to catch and correct without escalating.

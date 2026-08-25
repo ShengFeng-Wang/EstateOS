@@ -1,0 +1,41 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-divider);
+  border-radius: 999px;
+  background: #fff;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--color-primary-ink);
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.positive {
+  background: var(--color-asset-green);
+}
+
+.neutral {
+  background: var(--color-muted-gray);
+}
+
+.warning {
+  background: var(--color-warning);
+}
+
+.signal {
+  background: var(--color-spatial-signal);
+}
+
+.critical {
+  background: var(--color-critical);
+}

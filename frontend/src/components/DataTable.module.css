@@ -1,0 +1,42 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 44px;
+  padding: 0 20px;
+  background: var(--color-warm-workspace);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.headerCell {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-muted-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 64px;
+  padding: 0 20px;
+  background: #fff;
+  border-bottom: 1px solid var(--color-divider);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 150ms var(--ease-operational);
+}
+
+.row:hover {
+  border-bottom-color: var(--color-spatial-signal);
+}
+
+.cell {
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

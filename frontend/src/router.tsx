@@ -4,6 +4,7 @@ import { LoginPage } from './routes/LoginPage';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { OverviewPage } from './routes/OverviewPage';
 import { PlaceholderPage } from './routes/PlaceholderPage';
+import { PropertiesListPage } from './routes/PropertiesListPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -17,7 +18,7 @@ export const router = createBrowserRouter([
         children: [
           { path: '/overview', element: <OverviewPage /> },
           { path: '/digital-twin', element: <PlaceholderPage title="Digital Twin City" /> },
-          { path: '/properties', element: <PlaceholderPage title="Properties" /> },
+          { path: '/properties', element: <PropertiesListPage /> },
           { path: '/properties/:id', element: <PlaceholderPage title="Property Detail" /> },
           { path: '/tenants', element: <PlaceholderPage title="Tenants" /> },
           { path: '/contracts', element: <PlaceholderPage title="Contracts" /> },

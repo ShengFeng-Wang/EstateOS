@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../api/auth';
+import { Button } from '../components/Button';
 import { ApiError } from '../lib/api-client';
 import { useAuthStore } from '../store/auth-store';
 import styles from './LoginPage.module.css';
@@ -126,9 +127,9 @@ export function LoginPage() {
               {fieldErrors.password && <p className={styles.fieldError}>{fieldErrors.password}</p>}
             </div>
 
-            <button type="submit" className={styles.submit} disabled={isSubmitting}>
+            <Button type="submit" fullWidth disabled={isSubmitting}>
               {isSubmitting ? 'Signing in…' : 'Sign in'}
-            </button>
+            </Button>
           </form>
 
           <p className={styles.demoAccess}>DEMO ACCESS&nbsp;&nbsp;admin@estateos.dev&nbsp;&nbsp;/&nbsp;&nbsp;estate2026</p>

@@ -1,0 +1,12 @@
+.shell {
+  display: flex;
+  min-height: 100svh;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-warm-workspace);
+  padding: 34px 48px 48px;
+  overflow-y: auto;
+}

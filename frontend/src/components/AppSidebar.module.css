@@ -1,0 +1,91 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 232px;
+  flex-shrink: 0;
+  height: 100svh;
+  padding: 32px 18px 24px;
+  background: var(--color-observation-dark);
+}
+
+.wordmark {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--color-warm-workspace);
+}
+
+.tagline {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-spatial-signal);
+}
+
+.brandSpacing {
+  height: 34px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  color: rgb(241 240 233 / 70%);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 150ms var(--ease-operational);
+}
+
+.navItem:hover {
+  background: rgb(241 240 233 / 8%);
+  color: var(--color-warm-workspace);
+}
+
+.navItemActive,
+.navItemActive:hover {
+  background: var(--color-asset-green);
+  color: var(--color-warm-workspace);
+}
+
+.iconSlot {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--color-muted-gray);
+}
+
+.navItemActive .iconSlot {
+  background: var(--color-spatial-signal);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.footer {
+  border: none;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 16px;
+  color: var(--color-muted-gray);
+}
+
+.footer:hover {
+  color: var(--color-warm-workspace);
+}
