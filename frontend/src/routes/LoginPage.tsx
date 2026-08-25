@@ -62,28 +62,22 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <section className={styles.spatial}>
+        <SpatialBars />
         <span className={styles.wordmark}>ESTATE / OS</span>
-
-        <div className={styles.spatialBody}>
-          <div className={styles.spatialCopy}>
-            <h1 className={styles.headline}>
-              <span className={styles.headlineLine}>Spatial asset</span>
-              <br />
-              <span className={styles.headlineLine}>intelligence</span>
-            </h1>
-            <p className={styles.tagline}>
-              Observe the portfolio. Navigate the district.
-              <br />
-              Inspect every property as connected operational data.
-            </p>
-          </div>
-          <SpatialBars />
-        </div>
-
+        <h1 className={styles.headline}>
+          Spatial asset
+          <br />
+          intelligence
+        </h1>
+        <p className={styles.tagline}>
+          Observe the portfolio. Navigate the district.
+          <br />
+          Inspect every property as connected operational data.
+        </p>
         <div className={styles.breadcrumb}>
-          <span>01 PORTFOLIO</span>
-          <span>02 DISTRICT</span>
-          <span>03 PROPERTY</span>
+          <span>01&nbsp;&nbsp;PORTFOLIO</span>
+          <span>02&nbsp;&nbsp;DISTRICT</span>
+          <span>03&nbsp;&nbsp;PROPERTY</span>
         </div>
       </section>
 
@@ -100,7 +94,7 @@ export function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate>
+          <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="email">
                 Work email
