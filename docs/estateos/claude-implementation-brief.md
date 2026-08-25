@@ -4,6 +4,8 @@
 
 Implement ESTATE / OS according to the specifications indexed in `docs/estateos/README.md`. Codex owns approved product and design decisions. Claude Code owns engineering implementation within those decisions.
 
+For the Three.js Digital Twin, `docs/estateos/claude-threejs-implementation-spec.md` is the implementation contract. Read it and the approved visual reference before touching the scene. Do not begin from a generic Three.js demo or reinterpret the visual direction.
+
 ## Stack
 
 ### Frontend

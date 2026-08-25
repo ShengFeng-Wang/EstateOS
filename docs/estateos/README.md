@@ -20,9 +20,10 @@ ESTATE / OS is a portfolio-scale internal property asset management platform. It
 3. [Screen inventory](estateos-screen-inventory.md)
 4. [Component specification](estateos-component-spec.md)
 5. [Three.js and motion specification](estateos-threejs-motion-spec.md)
-6. [Responsive and localization specification](estateos-responsive-localization-spec.md)
-7. [Acceptance criteria](estateos-acceptance-criteria.md)
-8. [Claude Code implementation brief](claude-implementation-brief.md)
+6. [Claude Code Digital Twin implementation specification](claude-threejs-implementation-spec.md)
+7. [Responsive and localization specification](estateos-responsive-localization-spec.md)
+8. [Acceptance criteria](estateos-acceptance-criteria.md)
+9. [Claude Code implementation brief](claude-implementation-brief.md)
 
 Visual reference: [Digital Twin concept](../design/assets/estateos-digital-twin-concept-v1.png)
 

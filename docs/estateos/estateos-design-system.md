@@ -37,12 +37,13 @@ Warm gray, restrained, high-readability. Used for properties, tenants, contracts
 | Primary Ink | `#17201C` | Main text |
 | Asset Green | `#275B43` | Occupied / brand |
 | Spatial Signal | `#B7F34A` | Selection, live state, primary spatial action |
+| Warm Accent Text | `#8A5510` | Accessible eyebrow and emphasis text on warm-gray or white surfaces |
 | Muted Gray | `#737B75` | Secondary content |
 | Divider | `#C9CDC7` | Hairlines |
 | Warning | `#D69A35` | Maintenance / warning |
 | Critical | `#BE5A4E` | Destructive / error |
 
-Spatial Signal is scarce. It must not become the default color of every button or card.
+Spatial Signal is scarce. It must not become the default color of every button or card. Use Spatial Signal for text only on dark spatial surfaces. On Warm Workspace or white surfaces, use Warm Accent Text instead; the bright signal green does not provide sufficient small-text contrast there.
 
 ### Typography
 
@@ -102,4 +103,3 @@ Every state also has text or shape encoding; color alone is insufficient.
 - No detached instances in final frames
 - Developer annotations for scroll, sticky, responsive, localization, and motion behavior
 - Every component maps to a named React component and token set
-

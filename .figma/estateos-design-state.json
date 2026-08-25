@@ -91,8 +91,8 @@
       "Primitives / Radius": "VariableCollectionId:6:37"
     },
     "variables": {
-      "primitiveColorCount": 10,
-      "semanticColorCount": 16,
+      "primitiveColorCount": 11,
+      "semanticColorCount": 17,
       "spacingCount": 9,
       "radiusCount": 5
     },
@@ -142,6 +142,15 @@
       "Authentication / Forgot Password / Default": { "frameId": "28:22", "status": "complete_verified" },
       "Authentication / Forgot Password / Email Sent": { "frameId": "28:23", "status": "complete_verified" },
       "Authentication / Session Expired": { "frameId": "28:24", "status": "complete_verified" }
+      ,"Executive Overview / Dashboard / Default": { "frameId": "31:2", "status": "complete_verified" }
+      ,"Executive Overview / Dashboard / Loading": { "frameId": "31:3", "status": "complete_verified" }
+      ,"Executive Overview / Dashboard / Empty Portfolio": { "frameId": "31:4", "status": "complete_verified" }
+      ,"Executive Overview / Dashboard / Partial Data Error": { "frameId": "31:5", "status": "complete_verified" }
+      ,"Executive Overview / Dashboard / Date Range Changed": { "frameId": "31:6", "status": "complete_verified" }
+      ,"Executive Overview / Spatial Map / Default": { "frameId": "31:7", "status": "complete_verified" }
+      ,"Executive Overview / Spatial Map / Building Hovered": { "frameId": "31:8", "status": "complete_verified" }
+      ,"Executive Overview / Spatial Map / Building Selected": { "frameId": "31:9", "status": "complete_verified" }
+      ,"Executive Overview / Spatial Map / Filtered": { "frameId": "31:10", "status": "complete_verified" }
     }
   },
   "completedPhase1Steps": [
@@ -155,7 +164,7 @@
   "verification": {
     "planTier": "pro",
     "seat": "Full",
-    "variableCount": 40,
+    "variableCount": 42,
     "allScopesExplicit": true,
     "textStyleCount": 11,
     "effectStyleCount": 3,
@@ -206,9 +215,28 @@
     "tabletTarget": 16,
     "mobileTarget": 24,
     "verifiedModuleFrames": {
-      "Authentication": 6
+      "Authentication": 6,
+      "Executive Overview": 9
     },
-    "verifiedProductFrameCount": 6
+    "verifiedProductFrameCount": 15,
+    "pendingModuleFrames": {
+      "Properties": {
+        "33:2": "List / Default",
+        "33:3": "List / Loading",
+        "33:4": "List / Empty",
+        "33:5": "List / Search Results",
+        "33:6": "List / No Results",
+        "33:7": "List / Filtered",
+        "33:8": "List / Row Selected",
+        "33:9": "List / Bulk Selection",
+        "33:10": "Detail / Occupied",
+        "33:11": "Detail / Vacant",
+        "33:12": "Detail / Maintenance",
+        "33:13": "Create / Default",
+        "33:14": "Create / Validation Error",
+        "33:15": "Edit / Archive Confirmation"
+      }
+    }
   },
-  "nextStep": "Complete Executive Overview 9-frame module batch"
+  "nextStep": "Complete Properties 14-frame module batch"
 }
