@@ -7,6 +7,28 @@ namespace EstateOS.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
+    private static readonly (string City, string District)[] Locations =
+    [
+        ("Taipei", "Xinyi"), ("Taipei", "Da'an"), ("Taipei", "Songshan"),
+        ("Taipei", "Neihu"), ("Taipei", "Nangang"), ("New Taipei", "Banqiao"),
+        ("New Taipei", "Linkou"), ("Taoyuan", "Bade"), ("Taoyuan", "Zhongli"),
+    ];
+
+    private static readonly (PropertyType Type, decimal MinRent, decimal MaxRent, decimal MinSize, decimal MaxSize, int MinRooms, int MaxRooms)[] Archetypes =
+    [
+        (PropertyType.Apartment, 32000m, 58000m, 24m, 42m, 2, 3),
+        (PropertyType.Studio, 20000m, 34000m, 14m, 22m, 1, 1),
+        (PropertyType.Townhouse, 42000m, 72000m, 34m, 56m, 3, 4),
+        (PropertyType.Office, 55000m, 140000m, 45m, 90m, 0, 0),
+        (PropertyType.Retail, 38000m, 96000m, 30m, 70m, 0, 0),
+    ];
+
+    private static readonly string[] StreetNames =
+    [
+        "Zhongxiao Rd", "Bade Rd", "Fuxing S. Rd", "Minsheng E. Rd", "Songjiang Rd",
+        "Civic Blvd", "Nanjing E. Rd", "Heping E. Rd", "Chang'an E. Rd", "Jianguo N. Rd",
+    ];
+
     public static async Task SeedAsync(AppDbContext db, IPasswordHasher passwordHasher, CancellationToken ct = default)
     {
         if (!await db.Users.AnyAsync(ct))
@@ -99,8 +121,127 @@ public static class DbSeeder
                 Priority = MaintenancePriority.Medium, Status = MaintenanceStatus.InProgress,
                 CreatedAt = now, UpdatedAt = now
             });
+
+            SeedPortfolio(db, now, count: 57, startIndex: 4);
         }
 
         await db.SaveChangesAsync(ct);
+    }
+
+    // Fixed-seed generator for a demo-scale portfolio (Digital Twin needs 50-200 properties
+    // to read as a city; see docs/estateos/claude-threejs-implementation-spec.md).
+    private static void SeedPortfolio(AppDbContext db, DateTime now, int count, int startIndex)
+    {
+        var rng = new Random(20260825);
+        var contractPropertiesForRevenue = new List<Property>();
+
+        for (var i = 0; i < count; i++)
+        {
+            var index = startIndex + i;
+            var (type, minRent, maxRent, minSize, maxSize, minRooms, maxRooms) = Archetypes[rng.Next(Archetypes.Length)];
+            var (city, district) = Locations[rng.Next(Locations.Length)];
+            var street = StreetNames[rng.Next(StreetNames.Length)];
+
+            var status = rng.NextDouble() switch
+            {
+                < 0.68 => PropertyStatus.Occupied,
+                < 0.88 => PropertyStatus.Vacant,
+                _ => PropertyStatus.Maintenance,
+            };
+
+            var rent = Math.Round((minRent + (decimal)rng.NextDouble() * (maxRent - minRent)) / 100m) * 100m;
+            var size = Math.Round(minSize + (decimal)rng.NextDouble() * (maxSize - minSize), 1);
+            var rooms = minRooms == maxRooms ? minRooms : rng.Next(minRooms, maxRooms + 1);
+            var floor = rng.Next(1, 22);
+
+            var property = new Property
+            {
+                Id = Guid.NewGuid(),
+                Code = $"PPT-{index:000}",
+                Name = $"{district} {type} {floor}F",
+                Address = $"No. {rng.Next(1, 300)}, {street}",
+                City = city,
+                District = district,
+                Type = type,
+                Status = status,
+                MonthlyRent = rent,
+                Size = size,
+                Rooms = rooms,
+                Floor = floor,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            db.Properties.Add(property);
+
+            if (status == PropertyStatus.Occupied)
+            {
+                contractPropertiesForRevenue.Add(property);
+            }
+        }
+
+        // Give a subset of occupied properties active contracts + payment history so
+        // dashboard/reports/digital-twin revenue and contract-signal views have real depth.
+        var tenantNames = new[]
+        {
+            "Chen Yu-Ting", "Huang Chia-Hao", "Lin Pei-Chen", "Wu Zhi-Wei", "Yang Mei-Ling",
+            "Kao Jun-Han", "Chang Hsin-Yi", "Liu Chun-Yu", "Tsai Wei-Chun", "Hsu Yi-Fan",
+            "Wang Shu-Fen", "Cheng Kai-Wen",
+        };
+
+        for (var i = 0; i < Math.Min(contractPropertiesForRevenue.Count, tenantNames.Length); i++)
+        {
+            var property = contractPropertiesForRevenue[i];
+            var tenant = new Tenant
+            {
+                Id = Guid.NewGuid(),
+                Name = tenantNames[i],
+                Phone = $"09{rng.Next(10, 99)}-{rng.Next(100, 999)}-{rng.Next(100, 999)}",
+                Email = $"tenant{i + 1}@example.com",
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            db.Tenants.Add(tenant);
+
+            var startMonthsAgo = rng.Next(1, 10);
+            var endMonthsAhead = rng.Next(1, 12);
+            var status = endMonthsAhead <= 2 ? ContractStatus.ExpiringSoon : ContractStatus.Active;
+
+            var contract = new Contract
+            {
+                Id = Guid.NewGuid(),
+                PropertyId = property.Id,
+                TenantId = tenant.Id,
+                StartDate = DateOnly.FromDateTime(now).AddMonths(-startMonthsAgo),
+                EndDate = DateOnly.FromDateTime(now).AddMonths(endMonthsAhead),
+                MonthlyRent = property.MonthlyRent,
+                Deposit = property.MonthlyRent * 2,
+                Status = status,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+            db.Contracts.Add(contract);
+
+            var paymentStatus = rng.NextDouble() switch
+            {
+                < 0.8 => PaymentStatus.Paid,
+                < 0.92 => PaymentStatus.Pending,
+                _ => PaymentStatus.Overdue,
+            };
+
+            db.Payments.Add(new Payment
+            {
+                Id = Guid.NewGuid(),
+                ContractId = contract.Id,
+                PropertyId = property.Id,
+                TenantId = tenant.Id,
+                Amount = property.MonthlyRent,
+                DueDate = DateOnly.FromDateTime(now).AddDays(rng.Next(-15, 15)),
+                PaidAt = paymentStatus == PaymentStatus.Paid ? now.AddDays(-rng.Next(1, 10)) : null,
+                PaymentMethod = paymentStatus == PaymentStatus.Paid ? "BankTransfer" : null,
+                Status = paymentStatus,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        }
     }
 }
