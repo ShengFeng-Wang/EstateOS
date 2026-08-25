@@ -1,0 +1,139 @@
+{
+  "runId": "estateos-figma-v1-20260825",
+  "file": {
+    "name": "ESTATE / OS — Product Design",
+    "fileKey": "UGxfhgfjeLQ9Ub87KrboPP",
+    "url": "https://www.figma.com/design/UGxfhgfjeLQ9Ub87KrboPP",
+    "editorType": "figma",
+    "page": {
+      "name": "Page 1",
+      "nodeId": "0:1"
+    }
+  },
+  "phase": "P1",
+  "status": "phase_3_in_progress",
+  "completedSteps": [
+    "P0.a-spec-and-token-discovery",
+    "P0.b-file-creation-and-inspection",
+    "P0.c-library-and-font-discovery",
+    "P0.d-v1-scope-definition",
+    "P0.e-source-mapping",
+    "P0.f-gap-analysis"
+  ],
+  "discovery": {
+    "fonts": [
+      "Instrument Sans",
+      "IBM Plex Mono",
+      "Noto Sans TC"
+    ],
+    "localCollections": 0,
+    "localStyles": 0,
+    "localComponents": 0,
+    "codeConnectFiles": 0,
+    "librarySearchMatches": 0,
+    "themeModeDecision": "single-mode semantic tokens for spatial-dark and operational-light surfaces"
+  },
+  "v1Scope": {
+    "foundations": [
+      "color variables",
+      "spacing variables",
+      "radius variables",
+      "typography styles",
+      "effect styles"
+    ],
+    "coreComponents": [
+      "Button",
+      "IconButton",
+      "TextInput",
+      "SearchField",
+      "StatusBadge",
+      "SidebarItem",
+      "MetricDisplay",
+      "DataTable primitives",
+      "PropertyMapTooltip",
+      "PropertySelectionPanel"
+    ],
+    "desktopScreens": [
+      "Login",
+      "Executive Overview",
+      "Digital Twin Map — Property Selected",
+      "Property List",
+      "Property Detail"
+    ]
+  },
+  "entities": {
+    "pages": {
+      "00 Foundations": "0:1",
+      "01 Components": "6:2",
+      "02 Core Screens": "6:3"
+    },
+    "collections": {
+      "Primitives / Color": "VariableCollectionId:6:4",
+      "Semantic / Color": "VariableCollectionId:6:5",
+      "Primitives / Spacing": "VariableCollectionId:6:36",
+      "Primitives / Radius": "VariableCollectionId:6:37"
+    },
+    "variables": {
+      "primitiveColorCount": 10,
+      "semanticColorCount": 16,
+      "spacingCount": 9,
+      "radiusCount": 5
+    },
+    "styles": {
+      "textStyleCount": 11,
+      "effectStyleCount": 3
+    },
+    "foundationFrames": {
+      "Cover / EstateOS Design System": "6:66",
+      "Foundations / Color": "9:2",
+      "Foundations / Type + Geometry": "10:2",
+      "Documentation / Principles + Accessibility": "13:2",
+      "Documentation / Motion + Handoff": "14:2"
+    },
+    "components": {
+      "Button": {
+        "componentSetId": "15:26",
+        "documentationFrameId": "15:27",
+        "variantCount": 12,
+        "axes": {
+          "Style": ["Primary", "Secondary"],
+          "Size": ["Medium", "Large"],
+          "State": ["Default", "Hover", "Disabled"]
+        },
+        "verified": true
+      }
+    },
+    "screens": {}
+  },
+  "completedPhase1Steps": [
+    "P1.a-three-page-structure",
+    "P1.b-color-variables",
+    "P1.c-spacing-and-radius-variables",
+    "P1.d-typography-and-effect-styles",
+    "P1.e-foundation-boards",
+    "P1.f-screenshot-and-metadata-validation"
+  ],
+  "verification": {
+    "planTier": "pro",
+    "seat": "Full",
+    "variableCount": 40,
+    "allScopesExplicit": true,
+    "textStyleCount": 11,
+    "effectStyleCount": 3,
+    "foundationBoardCount": 5
+  },
+  "completedPhase2Steps": [
+    "P2.a-principles-and-accessibility-board",
+    "P2.b-motion-threejs-and-handoff-board",
+    "P2.c-token-and-type-style-binding",
+    "P2.d-screenshot-validation",
+    "P2.e-ledger-update"
+  ],
+  "completedPhase3Steps": [
+    "P3.a-button-variant-matrix",
+    "P3.b-button-text-property-and-variable-bindings",
+    "P3.c-button-documentation",
+    "P3.d-button-screenshot-validation"
+  ],
+  "nextStep": "Continue Phase 3 with IconButton, TextInput, SearchField, StatusBadge, SidebarItem, MetricDisplay, DataTable primitives, PropertyMapTooltip, and PropertySelectionPanel"
+}

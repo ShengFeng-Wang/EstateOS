@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EstateOS.Api/EstateOS.Api.csproj" />
+    <Project Path="src/EstateOS.Application/EstateOS.Application.csproj" />
+    <Project Path="src/EstateOS.Domain/EstateOS.Domain.csproj" />
+    <Project Path="src/EstateOS.Infrastructure/EstateOS.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EstateOS.Tests/EstateOS.Tests.csproj" />
+  </Folder>
+</Solution>
