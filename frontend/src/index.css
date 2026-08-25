@@ -11,7 +11,9 @@
 body {
   margin: 0;
   min-height: 100svh;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans);
+  background: var(--color-warm-workspace);
+  color: var(--color-primary-ink);
 }
 
 #root {

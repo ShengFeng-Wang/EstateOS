@@ -1,0 +1,36 @@
+:root {
+  /* Colors — docs/estateos/estateos-design-system.md */
+  --color-observation-dark: #0a0f0d;
+  --color-warm-workspace: #f1f0e9;
+  --color-primary-ink: #17201c;
+  --color-asset-green: #275b43;
+  --color-spatial-signal: #b7f34a;
+  --color-warm-accent-text: #8a5510;
+  --color-muted-gray: #737b75;
+  --color-divider: #c9cdc7;
+  --color-warning: #d69a35;
+  --color-critical: #be5a4e;
+
+  /* Typography */
+  --font-sans: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Consolas, monospace;
+
+  /* Spacing — base 4px, rhythm 8/12/16/24/32/48/64 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 12px;
+
+  /* Motion */
+  --ease-operational: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spatial: cubic-bezier(0.16, 1, 0.3, 1);
+}
