@@ -6,7 +6,7 @@ import { Button } from '../components/Button';
 import { ApiError } from '../lib/api-client';
 import { useAuthStore } from '../store/auth-store';
 import styles from './LoginPage.module.css';
-import { SpatialBars } from './SpatialBars';
+import { LoginSpatialScene } from './LoginSpatialScene';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -63,7 +63,7 @@ export function LoginPage() {
   return (
     <div className={styles.page}>
       <section className={styles.spatial}>
-        <SpatialBars />
+        <LoginSpatialScene />
         <span className={styles.wordmark}>ESTATE / OS</span>
         <h1 className={styles.headline}>
           Spatial asset
