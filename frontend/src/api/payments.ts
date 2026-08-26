@@ -16,9 +16,12 @@ export interface Payment {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  propertyCode: string;
+  propertyName: string;
+  tenantName: string;
 }
 
-export function listPayments(params: { propertyId?: string; tenantId?: string; contractId?: string; status?: PaymentStatus; page?: number; pageSize?: number } = {}) {
+export function listPayments(params: { search?: string; propertyId?: string; tenantId?: string; contractId?: string; status?: PaymentStatus; page?: number; pageSize?: number } = {}) {
   return apiRequest<PagedResult<Payment>>('/payments', {
     query: params as Record<string, string | number | boolean | undefined>,
   });

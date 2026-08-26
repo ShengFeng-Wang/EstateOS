@@ -16,7 +16,13 @@ public class PaymentService
 
     public async Task<PagedResult<PaymentDto>> ListAsync(PaymentListQuery query, CancellationToken ct = default)
     {
-        var q = _db.Payments.AsNoTracking().AsQueryable();
+        var q = _db.Payments.AsNoTracking().Include(p => p.Property).Include(p => p.Tenant).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            q = q.Where(p => p.Property.Name.Contains(term) || p.Property.Code.Contains(term) || p.Tenant.Name.Contains(term));
+        }
 
         if (query.PropertyId is not null) q = q.Where(p => p.PropertyId == query.PropertyId);
         if (query.TenantId is not null) q = q.Where(p => p.TenantId == query.TenantId);
@@ -36,7 +42,8 @@ public class PaymentService
 
     public async Task<PaymentDto> GetAsync(Guid id, CancellationToken ct = default)
     {
-        var payment = await _db.Payments.AsNoTracking().SingleOrDefaultAsync(p => p.Id == id, ct)
+        var payment = await _db.Payments.AsNoTracking().Include(p => p.Property).Include(p => p.Tenant)
+            .SingleOrDefaultAsync(p => p.Id == id, ct)
             ?? throw new NotFoundException(nameof(Payment), id);
         return ToDto(payment);
     }
@@ -45,7 +52,8 @@ public class PaymentService
     {
         ValidatePaidState(request.Status, request.PaidAt);
 
-        var contract = await _db.Contracts.AsNoTracking().SingleOrDefaultAsync(c => c.Id == request.ContractId, ct)
+        var contract = await _db.Contracts.AsNoTracking().Include(c => c.Property).Include(c => c.Tenant)
+            .SingleOrDefaultAsync(c => c.Id == request.ContractId, ct)
             ?? throw new NotFoundException(nameof(Contract), request.ContractId);
 
         var now = DateTime.UtcNow;
@@ -67,14 +75,15 @@ public class PaymentService
 
         _db.Payments.Add(payment);
         await _db.SaveChangesAsync(ct);
-        return ToDto(payment);
+        return ToDto(payment, contract.Property.Code, contract.Property.Name, contract.Tenant.Name);
     }
 
     public async Task<PaymentDto> UpdateAsync(Guid id, UpdatePaymentRequest request, CancellationToken ct = default)
     {
         ValidatePaidState(request.Status, request.PaidAt);
 
-        var payment = await _db.Payments.SingleOrDefaultAsync(p => p.Id == id, ct)
+        var payment = await _db.Payments.Include(p => p.Property).Include(p => p.Tenant)
+            .SingleOrDefaultAsync(p => p.Id == id, ct)
             ?? throw new NotFoundException(nameof(Payment), id);
 
         payment.Amount = request.Amount;
@@ -97,7 +106,10 @@ public class PaymentService
         }
     }
 
-    private static PaymentDto ToDto(Payment p) => new(
+    private static PaymentDto ToDto(Payment p) =>
+        ToDto(p, p.Property.Code, p.Property.Name, p.Tenant.Name);
+
+    private static PaymentDto ToDto(Payment p, string propertyCode, string propertyName, string tenantName) => new(
         p.Id, p.ContractId, p.PropertyId, p.TenantId, p.Amount, p.DueDate, p.PaidAt,
-        p.PaymentMethod, p.Status, p.Notes, p.CreatedAt, p.UpdatedAt);
+        p.PaymentMethod, p.Status, p.Notes, p.CreatedAt, p.UpdatedAt, propertyCode, propertyName, tenantName);
 }

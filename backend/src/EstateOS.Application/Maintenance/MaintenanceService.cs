@@ -16,7 +16,13 @@ public class MaintenanceService
 
     public async Task<PagedResult<MaintenanceRequestDto>> ListAsync(MaintenanceListQuery query, CancellationToken ct = default)
     {
-        var q = _db.MaintenanceRequests.AsNoTracking().AsQueryable();
+        var q = _db.MaintenanceRequests.AsNoTracking().Include(m => m.Property).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            q = q.Where(m => m.Title.Contains(term) || m.Property.Name.Contains(term) || m.Property.Code.Contains(term));
+        }
 
         if (query.PropertyId is not null) q = q.Where(m => m.PropertyId == query.PropertyId);
         if (query.Status is not null) q = q.Where(m => m.Status == query.Status);
@@ -36,17 +42,16 @@ public class MaintenanceService
 
     public async Task<MaintenanceRequestDto> GetAsync(Guid id, CancellationToken ct = default)
     {
-        var request = await _db.MaintenanceRequests.AsNoTracking().SingleOrDefaultAsync(m => m.Id == id, ct)
+        var request = await _db.MaintenanceRequests.AsNoTracking().Include(m => m.Property)
+            .SingleOrDefaultAsync(m => m.Id == id, ct)
             ?? throw new NotFoundException(nameof(MaintenanceRequest), id);
         return ToDto(request);
     }
 
     public async Task<MaintenanceRequestDto> CreateAsync(CreateMaintenanceRequest request, CancellationToken ct = default)
     {
-        if (!await _db.Properties.AnyAsync(p => p.Id == request.PropertyId, ct))
-        {
-            throw new NotFoundException(nameof(Property), request.PropertyId);
-        }
+        var property = await _db.Properties.AsNoTracking().SingleOrDefaultAsync(p => p.Id == request.PropertyId, ct)
+            ?? throw new NotFoundException(nameof(Property), request.PropertyId);
 
         ValidateCompletedState(request.Status, request.Status == MaintenanceStatus.Completed ? DateTime.UtcNow : null);
 
@@ -67,14 +72,15 @@ public class MaintenanceService
 
         _db.MaintenanceRequests.Add(entity);
         await _db.SaveChangesAsync(ct);
-        return ToDto(entity);
+        return ToDto(entity, property.Code, property.Name);
     }
 
     public async Task<MaintenanceRequestDto> UpdateAsync(Guid id, UpdateMaintenanceRequest request, CancellationToken ct = default)
     {
         ValidateCompletedState(request.Status, request.CompletedAt);
 
-        var entity = await _db.MaintenanceRequests.SingleOrDefaultAsync(m => m.Id == id, ct)
+        var entity = await _db.MaintenanceRequests.Include(m => m.Property)
+            .SingleOrDefaultAsync(m => m.Id == id, ct)
             ?? throw new NotFoundException(nameof(MaintenanceRequest), id);
 
         entity.Title = request.Title;
@@ -99,7 +105,10 @@ public class MaintenanceService
         }
     }
 
-    private static MaintenanceRequestDto ToDto(MaintenanceRequest m) => new(
+    private static MaintenanceRequestDto ToDto(MaintenanceRequest m) =>
+        ToDto(m, m.Property.Code, m.Property.Name);
+
+    private static MaintenanceRequestDto ToDto(MaintenanceRequest m, string propertyCode, string propertyName) => new(
         m.Id, m.PropertyId, m.Title, m.Description, m.Priority, m.Status, m.AssigneeId,
-        m.CreatedAt, m.UpdatedAt, m.CompletedAt);
+        m.CreatedAt, m.UpdatedAt, m.CompletedAt, propertyCode, propertyName);
 }

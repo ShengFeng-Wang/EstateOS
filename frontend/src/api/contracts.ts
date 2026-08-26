@@ -15,9 +15,12 @@ export interface Contract {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  propertyCode: string;
+  propertyName: string;
+  tenantName: string;
 }
 
-export function listContracts(params: { propertyId?: string; tenantId?: string; status?: ContractStatus; page?: number; pageSize?: number } = {}) {
+export function listContracts(params: { search?: string; propertyId?: string; tenantId?: string; status?: ContractStatus; page?: number; pageSize?: number } = {}) {
   return apiRequest<PagedResult<Contract>>('/contracts', {
     query: params as Record<string, string | number | boolean | undefined>,
   });

@@ -7,6 +7,8 @@ import type { DataTableColumn } from '../components/DataTable';
 import { SearchField } from '../components/SearchField';
 import { StatusBadge } from '../components/StatusBadge';
 import type { StatusTone } from '../components/StatusBadge';
+import { Pagination } from '../components/Pagination';
+import listStyles from '../styles/listPage.module.css';
 import styles from './PropertiesListPage.module.css';
 
 const PAGE_SIZE = 9;
@@ -47,15 +49,15 @@ export function PropertiesListPage() {
 
   return (
     <section>
-      <div className={styles.header}>
+      <div className={listStyles.header}>
         <div>
-          <p className={styles.eyebrow}>PROPERTY PORTFOLIO</p>
-          <h1 className={styles.title}>Properties</h1>
-          <p className={styles.subtitle}>{total} assets · Residential and commercial</p>
+          <p className={listStyles.eyebrow}>PROPERTY PORTFOLIO</p>
+          <h1 className={listStyles.title}>Properties</h1>
+          <p className={listStyles.subtitle}>{total} assets · Residential and commercial</p>
         </div>
       </div>
 
-      <div className={styles.searchRow}>
+      <div className={listStyles.searchRow}>
         <SearchField
           id="property-search"
           label="Search"
@@ -68,8 +70,8 @@ export function PropertiesListPage() {
         />
       </div>
 
-      <div className={styles.toolbar}>
-        <span className={styles.filterLine}>FILTER&nbsp;&nbsp;ALL STATUS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ALL&nbsp;&nbsp;&nbsp;&nbsp;DISTRICT&nbsp;&nbsp;ALL</span>
+      <div className={listStyles.toolbar}>
+        <span className={listStyles.filterLine}>FILTER&nbsp;&nbsp;ALL STATUS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ALL&nbsp;&nbsp;&nbsp;&nbsp;DISTRICT&nbsp;&nbsp;ALL</span>
       </div>
 
       {isLoading && <p>Loading…</p>}
@@ -77,47 +79,29 @@ export function PropertiesListPage() {
 
       {data && (
         <>
-          <div className={styles.tableWrap}>
+          <div className={listStyles.tableWrap}>
             <DataTableHeader columns={COLUMNS} />
             {data.items.map((property: Property) => (
               <DataTableRow key={property.id} to={`/properties/${property.id}`} columns={COLUMNS}>
-                <span className={styles.propertyName}>{property.name}</span>
-                <span className={styles.location}>
+                <span className={listStyles.primaryCell}>{property.name}</span>
+                <span className={listStyles.secondaryCell}>
                   {property.city} · {property.district}
                 </span>
                 <StatusBadge label={property.status} tone={STATUS_TONE[property.status]} />
-                <span className={styles.revenue}>{formatRevenue(property.monthlyRent)}</span>
+                <span className={listStyles.monoCell}>{formatRevenue(property.monthlyRent)}</span>
                 <span className={styles.rowAction}>•••</span>
               </DataTableRow>
             ))}
           </div>
 
-          <div className={styles.pagination}>
-            <span>
-              SHOWING {rangeStart}–{rangeEnd} OF {total}
-            </span>
-            <div className={styles.pageControls}>
-              <button
-                type="button"
-                className={styles.pageButton}
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-              >
-                PREV
-              </button>
-              <span>
-                {page} / {totalPages}
-              </span>
-              <button
-                type="button"
-                className={styles.pageButton}
-                disabled={page >= totalPages}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                NEXT
-              </button>
-            </div>
-          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            total={total}
+            onPageChange={setPage}
+          />
         </>
       )}
     </section>

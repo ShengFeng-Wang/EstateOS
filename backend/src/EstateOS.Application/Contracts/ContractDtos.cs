@@ -5,7 +5,7 @@ namespace EstateOS.Application.Contracts;
 public record ContractDto(
     Guid Id, Guid PropertyId, Guid TenantId, DateOnly StartDate, DateOnly EndDate,
     decimal MonthlyRent, decimal Deposit, ContractStatus Status, string? Notes,
-    DateTime CreatedAt, DateTime UpdatedAt);
+    DateTime CreatedAt, DateTime UpdatedAt, string PropertyCode, string PropertyName, string TenantName);
 
 public record CreateContractRequest(
     Guid PropertyId, Guid TenantId, DateOnly StartDate, DateOnly EndDate,
@@ -17,6 +17,7 @@ public record UpdateContractRequest(
 
 public record ContractListQuery
 {
+    public string? Search { get; init; }
     public Guid? PropertyId { get; init; }
     public Guid? TenantId { get; init; }
     public ContractStatus? Status { get; init; }

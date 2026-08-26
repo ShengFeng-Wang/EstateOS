@@ -15,9 +15,11 @@ export interface MaintenanceRequest {
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+  propertyCode: string;
+  propertyName: string;
 }
 
-export function listMaintenance(params: { propertyId?: string; status?: MaintenanceStatus; priority?: MaintenancePriority; page?: number; pageSize?: number } = {}) {
+export function listMaintenance(params: { search?: string; propertyId?: string; status?: MaintenanceStatus; priority?: MaintenancePriority; page?: number; pageSize?: number } = {}) {
   return apiRequest<PagedResult<MaintenanceRequest>>('/maintenance', {
     query: params as Record<string, string | number | boolean | undefined>,
   });

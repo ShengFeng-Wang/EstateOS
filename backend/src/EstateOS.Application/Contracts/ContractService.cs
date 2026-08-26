@@ -16,7 +16,13 @@ public class ContractService
 
     public async Task<PagedResult<ContractDto>> ListAsync(ContractListQuery query, CancellationToken ct = default)
     {
-        var q = _db.Contracts.AsNoTracking().AsQueryable();
+        var q = _db.Contracts.AsNoTracking().Include(c => c.Property).Include(c => c.Tenant).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            q = q.Where(c => c.Property.Name.Contains(term) || c.Property.Code.Contains(term) || c.Tenant.Name.Contains(term));
+        }
 
         if (query.PropertyId is not null) q = q.Where(c => c.PropertyId == query.PropertyId);
         if (query.TenantId is not null) q = q.Where(c => c.TenantId == query.TenantId);
@@ -35,7 +41,8 @@ public class ContractService
 
     public async Task<ContractDto> GetAsync(Guid id, CancellationToken ct = default)
     {
-        var contract = await _db.Contracts.AsNoTracking().SingleOrDefaultAsync(c => c.Id == id, ct)
+        var contract = await _db.Contracts.AsNoTracking().Include(c => c.Property).Include(c => c.Tenant)
+            .SingleOrDefaultAsync(c => c.Id == id, ct)
             ?? throw new NotFoundException(nameof(Contract), id);
         return ToDto(contract);
     }
@@ -44,15 +51,11 @@ public class ContractService
     {
         ValidateDates(request.StartDate, request.EndDate);
 
-        if (!await _db.Properties.AnyAsync(p => p.Id == request.PropertyId, ct))
-        {
-            throw new NotFoundException(nameof(Property), request.PropertyId);
-        }
+        var property = await _db.Properties.AsNoTracking().SingleOrDefaultAsync(p => p.Id == request.PropertyId, ct)
+            ?? throw new NotFoundException(nameof(Property), request.PropertyId);
 
-        if (!await _db.Tenants.AnyAsync(t => t.Id == request.TenantId, ct))
-        {
-            throw new NotFoundException(nameof(Tenant), request.TenantId);
-        }
+        var tenant = await _db.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Id == request.TenantId, ct)
+            ?? throw new NotFoundException(nameof(Tenant), request.TenantId);
 
         if (request.Status == ContractStatus.Active)
         {
@@ -77,14 +80,15 @@ public class ContractService
 
         _db.Contracts.Add(contract);
         await _db.SaveChangesAsync(ct);
-        return ToDto(contract);
+        return ToDto(contract, property.Code, property.Name, tenant.Name);
     }
 
     public async Task<ContractDto> UpdateAsync(Guid id, UpdateContractRequest request, CancellationToken ct = default)
     {
         ValidateDates(request.StartDate, request.EndDate);
 
-        var contract = await _db.Contracts.SingleOrDefaultAsync(c => c.Id == id, ct)
+        var contract = await _db.Contracts.Include(c => c.Property).Include(c => c.Tenant)
+            .SingleOrDefaultAsync(c => c.Id == id, ct)
             ?? throw new NotFoundException(nameof(Contract), id);
 
         if (request.Status == ContractStatus.Active)
@@ -106,7 +110,8 @@ public class ContractService
 
     public async Task<ContractDto> TerminateAsync(Guid id, CancellationToken ct = default)
     {
-        var contract = await _db.Contracts.SingleOrDefaultAsync(c => c.Id == id, ct)
+        var contract = await _db.Contracts.Include(c => c.Property).Include(c => c.Tenant)
+            .SingleOrDefaultAsync(c => c.Id == id, ct)
             ?? throw new NotFoundException(nameof(Contract), id);
 
         if (contract.Status is ContractStatus.Terminated or ContractStatus.Expired)
@@ -145,7 +150,10 @@ public class ContractService
         }
     }
 
-    private static ContractDto ToDto(Contract c) => new(
+    private static ContractDto ToDto(Contract c) =>
+        ToDto(c, c.Property.Code, c.Property.Name, c.Tenant.Name);
+
+    private static ContractDto ToDto(Contract c, string propertyCode, string propertyName, string tenantName) => new(
         c.Id, c.PropertyId, c.TenantId, c.StartDate, c.EndDate, c.MonthlyRent, c.Deposit,
-        c.Status, c.Notes, c.CreatedAt, c.UpdatedAt);
+        c.Status, c.Notes, c.CreatedAt, c.UpdatedAt, propertyCode, propertyName, tenantName);
 }

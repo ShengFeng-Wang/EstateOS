@@ -5,7 +5,8 @@ namespace EstateOS.Application.Payments;
 public record PaymentDto(
     Guid Id, Guid ContractId, Guid PropertyId, Guid TenantId, decimal Amount,
     DateOnly DueDate, DateTime? PaidAt, string? PaymentMethod, PaymentStatus Status,
-    string? Notes, DateTime CreatedAt, DateTime UpdatedAt);
+    string? Notes, DateTime CreatedAt, DateTime UpdatedAt,
+    string PropertyCode, string PropertyName, string TenantName);
 
 public record CreatePaymentRequest(
     Guid ContractId, decimal Amount, DateOnly DueDate, PaymentStatus Status,
@@ -17,6 +18,7 @@ public record UpdatePaymentRequest(
 
 public record PaymentListQuery
 {
+    public string? Search { get; init; }
     public Guid? PropertyId { get; init; }
     public Guid? TenantId { get; init; }
     public Guid? ContractId { get; init; }

@@ -1,13 +1,17 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './routes/AppLayout';
+import { ContractsListPage } from './routes/ContractsListPage';
 import { DigitalTwinPage } from './routes/DigitalTwinPage';
 import { LoginPage } from './routes/LoginPage';
+import { MaintenanceListPage } from './routes/MaintenanceListPage';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { OverviewPage } from './routes/OverviewPage';
-import { PlaceholderPage } from './routes/PlaceholderPage';
+import { PaymentsListPage } from './routes/PaymentsListPage';
 import { PropertiesListPage } from './routes/PropertiesListPage';
 import { PropertyDetailPage } from './routes/PropertyDetailPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { TenantDetailPage } from './routes/TenantDetailPage';
+import { TenantsListPage } from './routes/TenantsListPage';
 
 export const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/overview" replace /> },
@@ -22,10 +26,11 @@ export const router = createBrowserRouter([
           { path: '/digital-twin', element: <DigitalTwinPage /> },
           { path: '/properties', element: <PropertiesListPage /> },
           { path: '/properties/:id', element: <PropertyDetailPage /> },
-          { path: '/tenants', element: <PlaceholderPage title="Tenants" /> },
-          { path: '/contracts', element: <PlaceholderPage title="Contracts" /> },
-          { path: '/payments', element: <PlaceholderPage title="Payments" /> },
-          { path: '/maintenance', element: <PlaceholderPage title="Maintenance" /> },
+          { path: '/tenants', element: <TenantsListPage /> },
+          { path: '/tenants/:id', element: <TenantDetailPage /> },
+          { path: '/contracts', element: <ContractsListPage /> },
+          { path: '/payments', element: <PaymentsListPage /> },
+          { path: '/maintenance', element: <MaintenanceListPage /> },
         ],
       },
     ],

@@ -41,6 +41,14 @@
   margin-top: 24px;
 }
 
+.sectionTitle {
+  margin: 32px 0 16px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-primary-ink);
+}
+
 .tableWrap {
   border-radius: var(--radius-md);
   overflow: hidden;
