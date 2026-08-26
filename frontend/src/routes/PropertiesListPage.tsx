@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { listProperties } from '../api/properties';
 import type { Property, PropertyStatus } from '../api/properties';
@@ -8,6 +9,7 @@ import { SearchField } from '../components/SearchField';
 import { StatusBadge } from '../components/StatusBadge';
 import type { StatusTone } from '../components/StatusBadge';
 import { Pagination } from '../components/Pagination';
+import { Button } from '../components/Button';
 import listStyles from '../styles/listPage.module.css';
 import styles from './PropertiesListPage.module.css';
 
@@ -55,6 +57,11 @@ export function PropertiesListPage() {
           <h1 className={listStyles.title}>Properties</h1>
           <p className={listStyles.subtitle}>{total} assets · Residential and commercial</p>
         </div>
+        <Link to="/properties/new">
+          <Button variant="primary" size="medium">
+            New property
+          </Button>
+        </Link>
       </div>
 
       <div className={listStyles.searchRow}>

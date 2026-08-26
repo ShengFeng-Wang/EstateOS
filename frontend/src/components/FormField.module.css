@@ -1,0 +1,56 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted-gray);
+}
+
+.input,
+.select,
+.textarea {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: #fff;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--color-primary-ink);
+  transition: border-color 150ms var(--ease-operational);
+}
+
+.textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-asset-green);
+}
+
+.inputError {
+  border-color: var(--color-critical);
+}
+
+.errorText {
+  font-size: 12px;
+  color: var(--color-critical);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}

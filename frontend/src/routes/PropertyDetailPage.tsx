@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { archiveProperty, getProperty } from '../api/properties';
 import type { PropertyStatus } from '../api/properties';
@@ -175,6 +175,11 @@ export function PropertyDetailPage() {
         </div>
         <div className={styles.headerRight}>
           <StatusBadge label={property.status} tone={PROPERTY_STATUS_TONE[property.status]} />
+          <Link to={`/properties/${property.id}/edit`}>
+            <Button variant="secondary" size="medium">
+              Edit
+            </Button>
+          </Link>
           {property.status !== 'Archived' && (
             <Button variant="secondary" size="medium" onClick={() => setConfirmArchive(true)}>
               Archive
