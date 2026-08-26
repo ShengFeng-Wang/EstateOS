@@ -10,7 +10,8 @@ Claude Code records engineering caveats and deferred work here as they arise. No
 
 ## Frontend
 
-- `/login`, `/overview`, `/properties`, and `/digital-twin` are wired to real API calls and (for login/properties) pixel-matched to the approved Figma frames via the MCP connection. `/properties/:id`, `/tenants`, `/contracts`, `/payments`, `/maintenance` are still unstyled placeholders pending the same treatment.
+- `/login`, `/overview`, `/properties`, `/properties/:id`, and `/digital-twin` are wired to real API calls. Login and the Properties List are pixel-matched to the approved Figma frames via the MCP connection; Property Detail (added 2026-08-26) follows the written component spec and established design tokens instead, since the Figma MCP connection was unavailable that session — see `docs/handoff/spec-deviations.md`. `/tenants`, `/contracts`, `/payments`, `/maintenance` list/detail screens and the Create/Edit Property forms are still unstyled placeholders pending the same treatment.
+- Property Detail's Tenant tab only surfaces the current lease's tenant (Active contract, or the most recent by start date) — there is no tenant history view across past contracts yet.
 - Build size: the production bundle is ~1.3 MB (gzip ~363 KB) as of the Digital Twin addition, mostly `three`/`@react-three/fiber`/`@react-three/drei`. Not code-split yet (Vite's chunk-size warning fires) — consider lazy-loading the `/digital-twin` route with `React.lazy` if initial load time becomes a concern.
 
 ## Digital Twin (`/digital-twin`, added 2026-08-25)
