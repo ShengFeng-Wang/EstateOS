@@ -1,0 +1,37 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 24px 24px;
+  background: #fff;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--color-primary-ink);
+}
+
+.subtitle {
+  margin: 0 0 12px;
+  font-size: 12px;
+  color: var(--color-muted-gray);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+}
+
+.noData {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 160px;
+  font-size: 13px;
+  color: var(--color-muted-gray);
+}

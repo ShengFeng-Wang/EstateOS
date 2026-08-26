@@ -20,7 +20,14 @@ public class DashboardService
         var propertyCount = await activeProperties.CountAsync(ct);
         var occupiedCount = await activeProperties.CountAsync(p => p.Status == PropertyStatus.Occupied, ct);
         var vacantCount = await activeProperties.CountAsync(p => p.Status == PropertyStatus.Vacant, ct);
+        var maintenanceCount = await activeProperties.CountAsync(p => p.Status == PropertyStatus.Maintenance, ct);
+        var archivedCount = await _db.Properties.AsNoTracking().CountAsync(p => p.ArchivedAt != null, ct);
         var occupancyRate = propertyCount == 0 ? 0 : Math.Round((double)occupiedCount / propertyCount * 100, 1);
+
+        var typeBreakdown = await activeProperties
+            .GroupBy(p => p.Type)
+            .Select(g => new PropertyTypeCountDto(g.Key, g.Count()))
+            .ToListAsync(ct);
 
         var monthlyRevenue = await activeProperties
             .Where(p => p.Status == PropertyStatus.Occupied)
@@ -37,8 +44,8 @@ public class DashboardService
             .CountAsync(m => m.Status == MaintenanceStatus.Open || m.Status == MaintenanceStatus.InProgress, ct);
 
         return new DashboardSummaryDto(
-            propertyCount, occupiedCount, vacantCount, occupancyRate, monthlyRevenue,
-            overduePaymentCount, overdueAmount, expiringSoonContractCount, openMaintenanceCount);
+            propertyCount, occupiedCount, vacantCount, maintenanceCount, archivedCount, occupancyRate, monthlyRevenue,
+            overduePaymentCount, overdueAmount, expiringSoonContractCount, openMaintenanceCount, typeBreakdown);
     }
 
     public async Task<DashboardTrendsDto> GetTrendsAsync(int months = 6, CancellationToken ct = default)
