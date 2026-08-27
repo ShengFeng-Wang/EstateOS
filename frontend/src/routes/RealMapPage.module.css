@@ -55,3 +55,10 @@
   font-size: 13px;
   color: var(--color-warm-workspace);
 }
+
+.selectionOverlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+}

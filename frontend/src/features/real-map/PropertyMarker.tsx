@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import { Html } from '@react-three/drei';
 import { EastNorthUpFrame } from '3d-tiles-renderer/r3f';
 import type { Property } from '../../api/properties';
@@ -7,7 +6,7 @@ import { propertyGeoPosition } from './propertyGeoPosition';
 import styles from './PropertyMarker.module.css';
 
 const DEG2RAD = Math.PI / 180;
-const MARKER_HEIGHT_M = 40;
+const MARKER_HEIGHT_M = 20;
 
 const STATUS_COLOR: Record<Property['status'], string> = {
   Occupied: '#275b43',
@@ -16,18 +15,32 @@ const STATUS_COLOR: Record<Property['status'], string> = {
   Archived: '#c9cdc7',
 };
 
-interface PropertyMarkerProps {
-  property: Property;
+const SIGNAL_COLOR = '#b7f34a';
+
+/** Footprint radius derived from the property's floor size — a proxy hit target for the real
+ * building at this location (Google's tiles have no per-building pick metadata), not a literal
+ * outline. Clamped to a sensible range so tiny/huge properties don't produce absurd hit areas. */
+function footprintRadius(sizeSqm: number): number {
+  return Math.min(28, Math.max(10, Math.sqrt(sizeSqm) * 1.6));
 }
 
-export function PropertyMarker({ property }: PropertyMarkerProps) {
-  const navigate = useNavigate();
+interface PropertyMarkerProps {
+  property: Property;
+  selected: boolean;
+  onSelect: (property: Property) => void;
+}
+
+export function PropertyMarker({ property, selected, onSelect }: PropertyMarkerProps) {
   const [hovered, setHovered] = useState(false);
   const { lat, lon } = propertyGeoPosition(property.id, property.city, property.district);
   const color = STATUS_COLOR[property.status];
+  const radius = useMemo(() => footprintRadius(property.size), [property.size]);
 
   return (
     <EastNorthUpFrame lat={lat * DEG2RAD} lon={lon * DEG2RAD} height={0}>
+      {/* Building-sized, mostly-invisible hit target — clicking anywhere near the real
+          structure at this position selects it, since the real tile mesh isn't per-building
+          pickable. */}
       <mesh
         position={[0, MARKER_HEIGHT_M, 0]}
         onPointerOver={(e) => {
@@ -37,20 +50,36 @@ export function PropertyMarker({ property }: PropertyMarkerProps) {
         onPointerOut={() => setHovered(false)}
         onClick={(e) => {
           e.stopPropagation();
-          navigate(`/properties/${property.id}`);
+          onSelect(property);
         }}
-        scale={hovered ? 1.4 : 1}
       >
-        <sphereGeometry args={[20, 16, 16]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={hovered ? 0.8 : 0.45} />
-      </mesh>
-      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0, 12, MARKER_HEIGHT_M, 12]} />
-        <meshStandardMaterial color={color} transparent opacity={0.5} />
+        <cylinderGeometry args={[radius, radius, MARKER_HEIGHT_M * 2, 16]} />
+        <meshBasicMaterial transparent opacity={hovered || selected ? 0.08 : 0} depthWrite={false} />
       </mesh>
 
-      {hovered && (
-        <Html position={[0, MARKER_HEIGHT_M + 10, 0]} center distanceFactor={400} occlude={false}>
+      {/* Visible locator pin, unaffected by the hit target's scale. */}
+      <mesh position={[0, MARKER_HEIGHT_M, 0]} scale={hovered || selected ? 1.3 : 1}>
+        <sphereGeometry args={[7, 16, 16]} />
+        <meshStandardMaterial
+          color={selected ? SIGNAL_COLOR : color}
+          emissive={selected ? SIGNAL_COLOR : color}
+          emissiveIntensity={selected ? 0.9 : hovered ? 0.7 : 0.4}
+        />
+      </mesh>
+      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0, 4, MARKER_HEIGHT_M, 12]} />
+        <meshStandardMaterial color={selected ? SIGNAL_COLOR : color} transparent opacity={0.5} />
+      </mesh>
+
+      {selected && (
+        <mesh position={[0, 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[radius, radius + 3, 32]} />
+          <meshBasicMaterial color={SIGNAL_COLOR} transparent opacity={0.85} />
+        </mesh>
+      )}
+
+      {hovered && !selected && (
+        <Html position={[0, MARKER_HEIGHT_M + 12, 0]} center distanceFactor={400} occlude={false}>
           <div className={styles.label}>
             <span className={styles.name}>{property.name}</span>
             <span className={styles.meta}>

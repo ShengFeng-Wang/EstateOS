@@ -19,6 +19,8 @@ const DISTRICT_COORDINATES: Record<string, DistrictCoordinate> = {
   'Taipei|Nangang': { lat: 25.0546, lon: 121.6066 },
   'New Taipei|Banqiao': { lat: 25.0137, lon: 121.4625 },
   'New Taipei|Linkou': { lat: 25.0776, lon: 121.3919 },
+  // District-level approximation (not surveyed to the readjustment-zone boundary specifically —
+  // see known-limitations.md). Used as the Real Map's sole focus area per direct request.
   'Taoyuan|Bade': { lat: 24.9364, lon: 121.2969 },
   'Taoyuan|Zhongli': { lat: 24.9535, lon: 121.2245 },
 };

@@ -9,6 +9,7 @@ export const en = {
     edit: 'Edit',
     archive: 'Archive',
     save: 'Save changes',
+    openProperty: 'Open property',
   },
   sidebar: {
     tagline: 'ASSET INTELLIGENCE',
@@ -228,6 +229,10 @@ export const en = {
     High: 'High',
     Urgent: 'Urgent',
   },
+  realMap: {
+    zoneLabel: 'Bade Redevelopment Zone',
+    propertiesCount: (count: number) => `${count} properties`,
+  },
 };
 
 export type Translations = typeof en;
@@ -243,6 +248,7 @@ export const zhTW: Translations = {
     edit: '編輯',
     archive: '封存',
     save: '儲存變更',
+    openProperty: '查看物件',
   },
   sidebar: {
     tagline: '資產智慧平台',
@@ -460,5 +466,9 @@ export const zhTW: Translations = {
     Medium: '中',
     High: '高',
     Urgent: '緊急',
+  },
+  realMap: {
+    zoneLabel: '八德重劃區',
+    propertiesCount: (count) => `${count} 個物件`,
   },
 };

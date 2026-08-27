@@ -35,3 +35,11 @@ Claude Code records places where the shipped implementation intentionally differ
 The previous fictional-city implementation (`frontend/src/features/digital-twin/`, its Vitest suite, and the 517-line `claude-threejs-implementation-spec.md` it was built against) is **left in place, not deleted** — it's simply unrouted. This is a deliberate rollback safety net: the new implementation depends on an external, billed Google Cloud API the user just provisioned, which the team hasn't yet load-tested or budget-tested over time. If that dependency becomes a problem, reverting `router.tsx`'s `/digital-twin` entry restores the old feature immediately, no rebuild required.
 
 **Why:** Explicit, direct product request overriding the approved spec's "not real GIS" concept — the user asked specifically for real geography, a bigger/more comfortable viewport (the route's layout is now full-bleed, no sidebar-content padding — see `AppLayout.tsx`'s `FULL_BLEED_ROUTES`), and easier navigation, all of which a real map product naturally provides. Verified live against Google's servers (300+ successful tile requests, zero errors) before being wired into the main route.
+
+## 2026-08-27 — Real Map scoped to a single zone (Bade) with click-to-inspect restored
+
+**Spec:** The Real Map as first shipped (same day, entry above) showed the whole portfolio across all 9 seeded districts, with markers that navigated straight to the property detail page on click.
+
+**Change:** Immediately narrowed to a single explicit request: only Bade (八德重劃區) properties render, the camera is geographically leashed to that zone (see known-limitations.md), and clicking a building now opens an in-scene selection panel (price, status, type, address, an "Open property" link) instead of navigating away immediately — restoring the old fictional Digital Twin's click-to-inspect UX on top of the real tiles, since Google's Photorealistic 3D Tiles have no per-building semantic hit-testing of their own (each property gets a footprint-sized invisible proxy hit target instead).
+
+**Why:** Direct, explicit follow-up request — "只要有八德重劃區 其他地方就不需要出現" (only Bade Redevelopment Zone needs to be there; nowhere else needs to appear) and a request to bring back building-level interactivity with price info, matching the old Digital Twin's selection experience.
