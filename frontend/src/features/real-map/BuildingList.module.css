@@ -1,0 +1,52 @@
+.panel {
+  width: 240px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: rgb(10 15 13 / 65%);
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-warm-workspace);
+  transition: background-color 150ms var(--ease-operational);
+}
+
+.item:hover {
+  background: rgb(241 240 233 / 10%);
+}
+
+.itemActive {
+  background: var(--color-asset-green);
+}
+
+.itemActive:hover {
+  background: var(--color-asset-green);
+}
+
+.dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

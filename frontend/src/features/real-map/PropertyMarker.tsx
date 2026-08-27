@@ -3,19 +3,12 @@ import { Html } from '@react-three/drei';
 import { EastNorthUpFrame } from '3d-tiles-renderer/r3f';
 import type { Property } from '../../api/properties';
 import { propertyGeoPosition } from './propertyGeoPosition';
+import { STATUS_COLOR, SIGNAL_COLOR } from './statusColors';
 import styles from './PropertyMarker.module.css';
 
 const DEG2RAD = Math.PI / 180;
 const MARKER_HEIGHT_M = 20;
-
-const STATUS_COLOR: Record<Property['status'], string> = {
-  Occupied: '#275b43',
-  Vacant: '#737b75',
-  Maintenance: '#d69a35',
-  Archived: '#c9cdc7',
-};
-
-const SIGNAL_COLOR = '#b7f34a';
+const BEACON_HEIGHT_M = 160;
 
 /** Footprint radius derived from the property's floor size — a proxy hit target for the real
  * building at this location (Google's tiles have no per-building pick metadata), not a literal
@@ -58,20 +51,26 @@ export function PropertyMarker({ property, selected, onSelect }: PropertyMarkerP
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* Always-visible ground highlight — marks this footprint as a managed asset before any
-          hover/click, since the invisible hit target above gives no visual cue on its own. */}
+      {/* Tall beacon — visible from far away (a flat ground disc shrinks to nothing at
+          distance; a vertical column stays legible), marking this as a managed asset before
+          any hover/click. */}
+      <mesh position={[0, BEACON_HEIGHT_M / 2, 0]} renderOrder={1}>
+        <cylinderGeometry args={[1.6, 1.6, BEACON_HEIGHT_M, 10]} />
+        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 0.85 : 0.55} depthWrite={false} />
+      </mesh>
+      <mesh position={[0, BEACON_HEIGHT_M, 0]} renderOrder={2}>
+        <sphereGeometry args={[3.2, 12, 12]} />
+        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 1 : 0.8} depthWrite={false} />
+      </mesh>
+
+      {/* Ground highlight — the actual clickable footprint. */}
       <mesh position={[0, 0.4, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
         <circleGeometry args={[radius, 32]} />
-        <meshBasicMaterial
-          color={highlightColor}
-          transparent
-          opacity={active ? 0.32 : 0.16}
-          depthWrite={false}
-        />
+        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 0.55 : 0.38} depthWrite={false} />
       </mesh>
       <mesh position={[0, 0.45, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
-        <ringGeometry args={[radius - 1.2, radius, 40]} />
-        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 1 : 0.85} depthWrite={false} />
+        <ringGeometry args={[radius - 2, radius, 40]} />
+        <meshBasicMaterial color={highlightColor} transparent opacity={1} depthWrite={false} />
       </mesh>
 
       {/* Locator pin with a white halo ring so it reads against any real rooftop color. */}

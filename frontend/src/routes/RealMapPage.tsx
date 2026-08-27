@@ -2,7 +2,10 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { RealMapScene } from '../features/real-map/RealMapScene';
 import { RealMapSelectionPanel } from '../features/real-map/RealMapSelectionPanel';
+import { BuildingList } from '../features/real-map/BuildingList';
 import { fetchMapProperties } from '../features/real-map/realMapQuery';
+import { propertyGeoPosition } from '../features/real-map/propertyGeoPosition';
+import type { DistrictCoordinate } from '../features/real-map/districtCoordinates';
 import type { Property } from '../api/properties';
 import { useTranslation } from '../i18n/useTranslation';
 import styles from './RealMapPage.module.css';
@@ -21,6 +24,8 @@ export function RealMapPage() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
   const webglSupported = detectWebglSupport();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [flyToTarget, setFlyToTarget] = useState<DistrictCoordinate | null>(null);
+  const [flyToKey, setFlyToKey] = useState(0);
 
   const { data: allProperties, isLoading, isError, refetch } = useQuery({
     queryKey: ['real-map', 'properties'],
@@ -38,6 +43,14 @@ export function RealMapPage() {
 
   function handleSelect(property: Property) {
     setSelectedId((current) => (current === property.id ? null : property.id));
+  }
+
+  // Picking from the list jumps the camera there — a marker click doesn't re-fly since the
+  // user already navigated to it manually.
+  function handleSelectFromList(property: Property) {
+    setSelectedId(property.id);
+    setFlyToTarget(propertyGeoPosition(property.code, property.id, property.city, property.district));
+    setFlyToKey((key) => key + 1);
   }
 
   if (!webglSupported) {
@@ -85,6 +98,10 @@ export function RealMapPage() {
         <p className={styles.count}>{t.realMap.propertiesCount(properties.length)}</p>
       </div>
 
+      <div className={styles.listOverlay}>
+        <BuildingList properties={properties} selectedId={selectedId} onSelect={handleSelectFromList} />
+      </div>
+
       {selectedProperty && (
         <div className={styles.selectionOverlay}>
           <RealMapSelectionPanel property={selectedProperty} onClose={() => setSelectedId(null)} />
@@ -96,6 +113,8 @@ export function RealMapPage() {
         properties={properties}
         selectedPropertyId={selectedId}
         onSelectProperty={handleSelect}
+        flyToTarget={flyToTarget}
+        flyToKey={flyToKey}
       />
     </div>
   );
