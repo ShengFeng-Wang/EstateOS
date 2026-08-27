@@ -10,18 +10,12 @@ import { StatusBadge } from '../components/StatusBadge';
 import type { StatusTone } from '../components/StatusBadge';
 import { Pagination } from '../components/Pagination';
 import { Button } from '../components/Button';
+import { useTranslation } from '../i18n/useTranslation';
+import { formatCompactCurrency } from '../i18n/format';
 import listStyles from '../styles/listPage.module.css';
 import styles from './PropertiesListPage.module.css';
 
 const PAGE_SIZE = 9;
-
-const COLUMNS: DataTableColumn[] = [
-  { label: 'PROPERTY', width: 300 },
-  { label: 'LOCATION', width: 250 },
-  { label: 'STATUS', width: 170 },
-  { label: 'MONTHLY REVENUE', width: 180 },
-  { label: '', width: 80 },
-];
 
 const STATUS_TONE: Record<PropertyStatus, StatusTone> = {
   Occupied: 'positive',
@@ -30,14 +24,10 @@ const STATUS_TONE: Record<PropertyStatus, StatusTone> = {
   Archived: 'neutral',
 };
 
-function formatRevenue(amount: number): string {
-  if (amount >= 1000) return `NT$ ${Math.round(amount / 1000)}K`;
-  return `NT$ ${amount}`;
-}
-
 export function PropertiesListPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const { t, locale } = useTranslation();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['properties', { search, page }],
@@ -49,17 +39,25 @@ export function PropertiesListPage() {
   const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const rangeEnd = Math.min(page * PAGE_SIZE, total);
 
+  const columns: DataTableColumn[] = [
+    { label: t.properties.list.columns.property, width: 300 },
+    { label: t.properties.list.columns.location, width: 250 },
+    { label: t.properties.list.columns.status, width: 170 },
+    { label: t.properties.list.columns.revenue, width: 180 },
+    { label: '', width: 80 },
+  ];
+
   return (
     <section>
       <div className={listStyles.header}>
         <div>
-          <p className={listStyles.eyebrow}>PROPERTY PORTFOLIO</p>
-          <h1 className={listStyles.title}>Properties</h1>
-          <p className={listStyles.subtitle}>{total} assets · Residential and commercial</p>
+          <p className={listStyles.eyebrow}>{t.properties.list.eyebrow}</p>
+          <h1 className={listStyles.title}>{t.properties.list.title}</h1>
+          <p className={listStyles.subtitle}>{t.properties.list.subtitle(total)}</p>
         </div>
         <Link to="/properties/new">
           <Button variant="primary" size="medium">
-            New property
+            {t.properties.list.newProperty}
           </Button>
         </Link>
       </div>
@@ -67,8 +65,8 @@ export function PropertiesListPage() {
       <div className={listStyles.searchRow}>
         <SearchField
           id="property-search"
-          label="Search"
-          placeholder="Search name, address, tenant…"
+          label={t.common.search}
+          placeholder={t.properties.list.searchPlaceholder}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -78,24 +76,24 @@ export function PropertiesListPage() {
       </div>
 
       <div className={listStyles.toolbar}>
-        <span className={listStyles.filterLine}>FILTER&nbsp;&nbsp;ALL STATUS&nbsp;&nbsp;&nbsp;&nbsp;TYPE&nbsp;&nbsp;ALL&nbsp;&nbsp;&nbsp;&nbsp;DISTRICT&nbsp;&nbsp;ALL</span>
+        <span className={listStyles.filterLine}>{t.properties.list.filterLine}</span>
       </div>
 
-      {isLoading && <p>Loading…</p>}
-      {isError && <p role="alert">Failed to load properties.</p>}
+      {isLoading && <p>{t.common.loading}</p>}
+      {isError && <p role="alert">{t.properties.list.failed}</p>}
 
       {data && (
         <>
           <div className={listStyles.tableWrap}>
-            <DataTableHeader columns={COLUMNS} />
+            <DataTableHeader columns={columns} />
             {data.items.map((property: Property) => (
-              <DataTableRow key={property.id} to={`/properties/${property.id}`} columns={COLUMNS}>
+              <DataTableRow key={property.id} to={`/properties/${property.id}`} columns={columns}>
                 <span className={listStyles.primaryCell}>{property.name}</span>
                 <span className={listStyles.secondaryCell}>
                   {property.city} · {property.district}
                 </span>
-                <StatusBadge label={property.status} tone={STATUS_TONE[property.status]} />
-                <span className={listStyles.monoCell}>{formatRevenue(property.monthlyRent)}</span>
+                <StatusBadge label={t.propertyStatus[property.status]} tone={STATUS_TONE[property.status]} />
+                <span className={listStyles.monoCell}>{formatCompactCurrency(property.monthlyRent, locale)}</span>
                 <span className={styles.rowAction}>•••</span>
               </DataTableRow>
             ))}

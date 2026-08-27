@@ -20,15 +20,9 @@ import { DataTableHeader, DataTableRow } from '../components/DataTable';
 import type { DataTableColumn } from '../components/DataTable';
 import { EmptyState } from '../components/EmptyState';
 import { Modal } from '../components/Modal';
+import { useTranslation } from '../i18n/useTranslation';
+import { formatCurrency, formatDate } from '../i18n/format';
 import styles from './PropertyDetailPage.module.css';
-
-const TABS: TabItem[] = [
-  { key: 'overview', label: 'Overview' },
-  { key: 'tenant', label: 'Tenant' },
-  { key: 'contract', label: 'Contract' },
-  { key: 'payments', label: 'Payments' },
-  { key: 'maintenance', label: 'Maintenance' },
-];
 
 const PROPERTY_STATUS_TONE: Record<PropertyStatus, StatusTone> = {
   Occupied: 'positive',
@@ -65,15 +59,6 @@ const MAINTENANCE_PRIORITY_TONE: Record<MaintenancePriority, StatusTone> = {
   Urgent: 'critical',
 };
 
-function formatCurrency(amount: number): string {
-  return `NT$ ${amount.toLocaleString('en-US')}`;
-}
-
-function formatDate(value: string | null): string {
-  if (!value) return '—';
-  return new Date(value).toLocaleDateString('en-CA');
-}
-
 function currentContract(contracts: Contract[]): Contract | undefined {
   const active = contracts.find((c) => c.status === 'Active');
   if (active) return active;
@@ -86,6 +71,17 @@ export function PropertyDetailPage() {
   const queryClient = useQueryClient();
   const [tab, setTab] = useState('overview');
   const [confirmArchive, setConfirmArchive] = useState(false);
+  const { t, locale } = useTranslation();
+  const date = (v: string | null) => formatDate(v, locale);
+  const currency = (n: number) => formatCurrency(n, locale);
+
+  const TABS: TabItem[] = [
+    { key: 'overview', label: t.properties.detail.tabs.overview },
+    { key: 'tenant', label: t.properties.detail.tabs.tenant },
+    { key: 'contract', label: t.properties.detail.tabs.contract },
+    { key: 'payments', label: t.properties.detail.tabs.payments },
+    { key: 'maintenance', label: t.properties.detail.tabs.maintenance },
+  ];
 
   const propertyQuery = useQuery({
     queryKey: ['property', id],
@@ -134,33 +130,34 @@ export function PropertyDetailPage() {
     },
   });
 
-  if (propertyQuery.isLoading) return <p>Loading…</p>;
+  if (propertyQuery.isLoading) return <p>{t.common.loading}</p>;
   if (propertyQuery.isError || !propertyQuery.data) {
-    return <p role="alert">Failed to load property.</p>;
+    return <p role="alert">{t.properties.detail.failed}</p>;
   }
 
   const property = propertyQuery.data;
+  const f = t.properties.detail;
 
   const contractColumns: DataTableColumn[] = [
-    { label: 'TERM', width: 220 },
-    { label: 'MONTHLY RENT', width: 160 },
-    { label: 'DEPOSIT', width: 140 },
-    { label: 'STATUS', width: 160 },
+    { label: f.contract.term, width: 220 },
+    { label: f.contract.monthlyRent, width: 160 },
+    { label: f.contract.deposit, width: 140 },
+    { label: f.contract.status, width: 160 },
     { label: '', width: 120 },
   ];
 
   const paymentColumns: DataTableColumn[] = [
-    { label: 'DUE DATE', width: 160 },
-    { label: 'AMOUNT', width: 160 },
-    { label: 'PAID AT', width: 160 },
-    { label: 'STATUS', width: 160 },
+    { label: f.paymentsTab.dueDate, width: 160 },
+    { label: f.paymentsTab.amount, width: 160 },
+    { label: f.paymentsTab.paidAt, width: 160 },
+    { label: f.paymentsTab.status, width: 160 },
   ];
 
   const maintenanceColumns: DataTableColumn[] = [
-    { label: 'TITLE', width: 280 },
-    { label: 'PRIORITY', width: 140 },
-    { label: 'STATUS', width: 160 },
-    { label: 'CREATED', width: 140 },
+    { label: f.maintenanceTab.title, width: 280 },
+    { label: f.maintenanceTab.priority, width: 140 },
+    { label: f.maintenanceTab.status, width: 160 },
+    { label: f.maintenanceTab.created, width: 140 },
   ];
 
   return (
@@ -174,15 +171,15 @@ export function PropertyDetailPage() {
           </p>
         </div>
         <div className={styles.headerRight}>
-          <StatusBadge label={property.status} tone={PROPERTY_STATUS_TONE[property.status]} />
+          <StatusBadge label={t.propertyStatus[property.status]} tone={PROPERTY_STATUS_TONE[property.status]} />
           <Link to={`/properties/${property.id}/edit`}>
             <Button variant="secondary" size="medium">
-              Edit
+              {t.common.edit}
             </Button>
           </Link>
           {property.status !== 'Archived' && (
             <Button variant="secondary" size="medium" onClick={() => setConfirmArchive(true)}>
-              Archive
+              {t.common.archive}
             </Button>
           )}
         </div>
@@ -194,18 +191,18 @@ export function PropertyDetailPage() {
         {tab === 'overview' && (
           <DefinitionList
             items={[
-              { label: 'Type', value: property.type },
-              { label: 'Status', value: property.status },
-              { label: 'Monthly Rent', value: formatCurrency(property.monthlyRent) },
-              { label: 'Size', value: `${property.size} m²` },
-              { label: 'Rooms', value: property.rooms },
-              { label: 'Floor', value: property.floor },
-              { label: 'City / District', value: `${property.city} · ${property.district}` },
-              { label: 'Address', value: property.address },
-              { label: 'Created', value: formatDate(property.createdAt) },
-              { label: 'Updated', value: formatDate(property.updatedAt) },
-              { label: 'Description', value: property.description ?? '—' },
-              { label: 'Archived', value: formatDate(property.archivedAt) },
+              { label: f.overviewFields.type, value: t.propertyType[property.type] },
+              { label: f.overviewFields.status, value: t.propertyStatus[property.status] },
+              { label: f.overviewFields.monthlyRent, value: currency(property.monthlyRent) },
+              { label: f.overviewFields.size, value: `${property.size} m²` },
+              { label: f.overviewFields.rooms, value: property.rooms },
+              { label: f.overviewFields.floor, value: property.floor },
+              { label: f.overviewFields.cityDistrict, value: `${property.city} · ${property.district}` },
+              { label: f.overviewFields.address, value: property.address },
+              { label: f.overviewFields.created, value: date(property.createdAt) },
+              { label: f.overviewFields.updated, value: date(property.updatedAt) },
+              { label: f.overviewFields.description, value: property.description ?? '—' },
+              { label: f.overviewFields.archived, value: date(property.archivedAt) },
             ]}
           />
         )}
@@ -213,43 +210,43 @@ export function PropertyDetailPage() {
         {tab === 'tenant' &&
           (active ? (
             tenantQuery.isLoading ? (
-              <p>Loading…</p>
+              <p>{t.common.loading}</p>
             ) : tenantQuery.data ? (
               <DefinitionList
                 items={[
-                  { label: 'Name', value: tenantQuery.data.name },
-                  { label: 'Phone', value: tenantQuery.data.phone },
-                  { label: 'Email', value: tenantQuery.data.email },
-                  { label: 'Identity Reference', value: tenantQuery.data.identityReference ?? '—' },
-                  { label: 'Emergency Contact', value: tenantQuery.data.emergencyContact ?? '—' },
-                  { label: 'Notes', value: tenantQuery.data.notes ?? '—' },
+                  { label: f.tenantFields.name, value: tenantQuery.data.name },
+                  { label: f.tenantFields.phone, value: tenantQuery.data.phone },
+                  { label: f.tenantFields.email, value: tenantQuery.data.email },
+                  { label: f.tenantFields.identityReference, value: tenantQuery.data.identityReference ?? '—' },
+                  { label: f.tenantFields.emergencyContact, value: tenantQuery.data.emergencyContact ?? '—' },
+                  { label: f.tenantFields.notes, value: tenantQuery.data.notes ?? '—' },
                   {
-                    label: 'Current Lease',
-                    value: `${formatDate(active.startDate)} – ${formatDate(active.endDate)} · ${active.status}`,
+                    label: f.tenantFields.currentLease,
+                    value: `${date(active.startDate)} – ${date(active.endDate)} · ${t.contractStatus[active.status]}`,
                   },
                 ]}
               />
             ) : (
-              <p role="alert">Failed to load tenant.</p>
+              <p role="alert">{f.tenantFields.failed}</p>
             )
           ) : (
-            <EmptyState title="No active lease" description="This property has no active or recent contract on file." />
+            <EmptyState title={f.tenantFields.noActiveLease} description={f.tenantFields.noActiveLeaseDescription} />
           ))}
 
         {tab === 'contract' &&
           (contractsQuery.isLoading ? (
-            <p>Loading…</p>
+            <p>{t.common.loading}</p>
           ) : contractsQuery.data && contractsQuery.data.items.length > 0 ? (
             <div className={styles.tableWrap}>
               <DataTableHeader columns={contractColumns} />
               {contractsQuery.data.items.map((contract) => (
                 <DataTableRow key={contract.id} columns={contractColumns}>
                   <span>
-                    {formatDate(contract.startDate)} – {formatDate(contract.endDate)}
+                    {date(contract.startDate)} – {date(contract.endDate)}
                   </span>
-                  <span className={styles.mono}>{formatCurrency(contract.monthlyRent)}</span>
-                  <span className={styles.mono}>{formatCurrency(contract.deposit)}</span>
-                  <StatusBadge label={contract.status} tone={CONTRACT_STATUS_TONE[contract.status]} />
+                  <span className={styles.mono}>{currency(contract.monthlyRent)}</span>
+                  <span className={styles.mono}>{currency(contract.deposit)}</span>
+                  <StatusBadge label={t.contractStatus[contract.status]} tone={CONTRACT_STATUS_TONE[contract.status]} />
                   {contract.status === 'Active' ? (
                     <button
                       type="button"
@@ -257,7 +254,7 @@ export function PropertyDetailPage() {
                       disabled={terminateMutation.isPending}
                       onClick={() => terminateMutation.mutate(contract.id)}
                     >
-                      Terminate
+                      {f.contract.terminate}
                     </button>
                   ) : (
                     <span />
@@ -266,57 +263,54 @@ export function PropertyDetailPage() {
               ))}
             </div>
           ) : (
-            <EmptyState title="No contracts" description="No lease contracts have been recorded for this property." />
+            <EmptyState title={f.contract.empty} description={f.contract.emptyDescription} />
           ))}
 
         {tab === 'payments' &&
           (paymentsQuery.isLoading ? (
-            <p>Loading…</p>
+            <p>{t.common.loading}</p>
           ) : paymentsQuery.data && paymentsQuery.data.items.length > 0 ? (
             <div className={styles.tableWrap}>
               <DataTableHeader columns={paymentColumns} />
               {paymentsQuery.data.items.map((payment) => (
                 <DataTableRow key={payment.id} columns={paymentColumns}>
-                  <span>{formatDate(payment.dueDate)}</span>
-                  <span className={styles.mono}>{formatCurrency(payment.amount)}</span>
-                  <span>{formatDate(payment.paidAt)}</span>
-                  <StatusBadge label={payment.status} tone={PAYMENT_STATUS_TONE[payment.status]} />
+                  <span>{date(payment.dueDate)}</span>
+                  <span className={styles.mono}>{currency(payment.amount)}</span>
+                  <span>{date(payment.paidAt)}</span>
+                  <StatusBadge label={t.paymentStatus[payment.status]} tone={PAYMENT_STATUS_TONE[payment.status]} />
                 </DataTableRow>
               ))}
             </div>
           ) : (
-            <EmptyState title="No payments" description="No payment records exist for this property yet." />
+            <EmptyState title={f.paymentsTab.empty} description={f.paymentsTab.emptyDescription} />
           ))}
 
         {tab === 'maintenance' &&
           (maintenanceQuery.isLoading ? (
-            <p>Loading…</p>
+            <p>{t.common.loading}</p>
           ) : maintenanceQuery.data && maintenanceQuery.data.items.length > 0 ? (
             <div className={styles.tableWrap}>
               <DataTableHeader columns={maintenanceColumns} />
               {maintenanceQuery.data.items.map((request) => (
                 <DataTableRow key={request.id} columns={maintenanceColumns}>
                   <span>{request.title}</span>
-                  <StatusBadge label={request.priority} tone={MAINTENANCE_PRIORITY_TONE[request.priority]} />
-                  <StatusBadge label={request.status} tone={MAINTENANCE_STATUS_TONE[request.status]} />
-                  <span>{formatDate(request.createdAt)}</span>
+                  <StatusBadge label={t.maintenancePriority[request.priority]} tone={MAINTENANCE_PRIORITY_TONE[request.priority]} />
+                  <StatusBadge label={t.maintenanceStatus[request.status]} tone={MAINTENANCE_STATUS_TONE[request.status]} />
+                  <span>{date(request.createdAt)}</span>
                 </DataTableRow>
               ))}
             </div>
           ) : (
-            <EmptyState title="No maintenance requests" description="This property has no open or historical maintenance requests." />
+            <EmptyState title={f.maintenanceTab.empty} description={f.maintenanceTab.emptyDescription} />
           ))}
       </div>
 
       {confirmArchive && (
-        <Modal title="Archive this property?" onClose={() => setConfirmArchive(false)}>
-          <p className={styles.modalBody}>
-            {property.name} will be marked Archived and hidden from the active portfolio. This does not delete any
-            historical records and can be reviewed later.
-          </p>
+        <Modal title={f.archiveModal.title} onClose={() => setConfirmArchive(false)}>
+          <p className={styles.modalBody}>{f.archiveModal.body(property.name)}</p>
           <div className={styles.modalActions}>
             <Button variant="secondary" size="medium" onClick={() => setConfirmArchive(false)}>
-              Cancel
+              {t.common.cancel}
             </Button>
             <Button
               variant="primary"
@@ -324,7 +318,7 @@ export function PropertyDetailPage() {
               disabled={archiveMutation.isPending}
               onClick={() => archiveMutation.mutate()}
             >
-              Archive property
+              {f.archiveModal.confirm}
             </Button>
           </div>
         </Modal>

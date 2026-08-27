@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import type { Mesh } from 'three';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 import { BLOCKS, DESIGN_WIDTH, DESIGN_HEIGHT } from './spatialBlocks';
 
 // Extrudes the same approved "Spatial Identity" block composition (spatialBlocks.ts) into
@@ -39,21 +40,6 @@ function buildLayout(): Building[] {
     signal: Boolean(b.signal),
     delay: i * 0.07,
   }));
-}
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handler = (e: MediaQueryListEvent) => setReduced(e.matches);
-    query.addEventListener('change', handler);
-    return () => query.removeEventListener('change', handler);
-  }, []);
-
-  return reduced;
 }
 
 function easeOutCubic(t: number): number {

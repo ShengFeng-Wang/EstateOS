@@ -5,10 +5,10 @@ import { ChartCard } from '../components/charts/ChartCard';
 import { LineTrendChart } from '../components/charts/LineTrendChart';
 import { BarListChart } from '../components/charts/BarListChart';
 import { EmptyState } from '../components/EmptyState';
+import { useTranslation } from '../i18n/useTranslation';
+import { formatCompactCurrency, formatCompactNumber } from '../i18n/format';
 import listStyles from '../styles/listPage.module.css';
 import styles from './OverviewPage.module.css';
-
-const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const STATUS_COLORS = {
   occupied: '#275b43',
@@ -16,30 +16,6 @@ const STATUS_COLORS = {
   maintenance: '#d69a35',
   archived: '#c9cdc7',
 };
-
-const TYPE_LABELS: Record<string, string> = {
-  Apartment: 'Apartment',
-  Studio: 'Studio',
-  Townhouse: 'Townhouse',
-  Office: 'Office',
-  Retail: 'Retail',
-};
-
-function trimTrailingZero(value: string): string {
-  return value.replace(/\.0$/, '');
-}
-
-function formatCompactCurrency(amount: number): string {
-  if (amount >= 1_000_000) return `NT$ ${trimTrailingZero((amount / 1_000_000).toFixed(1))}M`;
-  if (amount >= 1_000) return `NT$ ${trimTrailingZero((amount / 1_000).toFixed(1))}K`;
-  return `NT$ ${amount.toLocaleString('en-US')}`;
-}
-
-function formatCompactNumber(value: number): string {
-  if (value >= 1_000_000) return `${trimTrailingZero((value / 1_000_000).toFixed(1))}M`;
-  if (value >= 1_000) return `${trimTrailingZero((value / 1_000).toFixed(1))}K`;
-  return value.toLocaleString('en-US');
-}
 
 /**
  * There is no historical occupancy-rate tracking in the schema (occupancy is a live
@@ -57,6 +33,8 @@ function mockOccupancyTrend(currentRate: number, months: number): number[] {
 }
 
 export function OverviewPage() {
+  const { t, locale } = useTranslation();
+
   const summaryQuery = useQuery({
     queryKey: ['dashboard', 'summary'],
     queryFn: getDashboardSummary,
@@ -67,9 +45,9 @@ export function OverviewPage() {
     queryFn: () => getDashboardTrends(6),
   });
 
-  if (summaryQuery.isLoading) return <p>Loading…</p>;
+  if (summaryQuery.isLoading) return <p>{t.common.loading}</p>;
   if (summaryQuery.isError || !summaryQuery.data) {
-    return <p role="alert">Failed to load dashboard summary.</p>;
+    return <p role="alert">{t.overview.failed}</p>;
   }
 
   const data = summaryQuery.data;
@@ -79,17 +57,20 @@ export function OverviewPage() {
       <section>
         <div className={listStyles.header}>
           <div>
-            <p className={listStyles.eyebrow}>EXECUTIVE OVERVIEW</p>
-            <h1 className={listStyles.title}>Overview</h1>
+            <p className={listStyles.eyebrow}>{t.overview.eyebrow}</p>
+            <h1 className={listStyles.title}>{t.overview.title}</h1>
           </div>
         </div>
-        <EmptyState title="No properties in the portfolio yet" description="Add a property to start seeing performance data here." />
+        <EmptyState title={t.overview.emptyTitle} description={t.overview.emptyDescription} />
       </section>
     );
   }
 
+  const currency = (n: number) => formatCompactCurrency(n, locale);
+  const number = (n: number) => formatCompactNumber(n, locale);
+
   const revenuePoints = trendsQuery.data?.revenue ?? [];
-  const revenueTrend = revenuePoints.map((p) => ({ label: MONTH_LABELS[p.month - 1], value: p.revenue }));
+  const revenueTrend = revenuePoints.map((p) => ({ label: t.overview.months[p.month - 1], value: p.revenue }));
 
   const lastRevenue = revenuePoints.at(-1)?.revenue ?? 0;
   const prevRevenue = revenuePoints.at(-2)?.revenue ?? 0;
@@ -97,74 +78,90 @@ export function OverviewPage() {
     trendsQuery.data && prevRevenue > 0 ? ((lastRevenue - prevRevenue) / prevRevenue) * 100 : null;
 
   const occupancyTrendValues = mockOccupancyTrend(data.occupancyRate, revenuePoints.length || 6);
-  const occupancyTrend = (revenuePoints.length ? revenuePoints.map((p) => MONTH_LABELS[p.month - 1]) : MONTH_LABELS.slice(-6)).map(
-    (label, i) => ({ label, value: occupancyTrendValues[i] }),
-  );
+  const occupancyTrend = (
+    revenuePoints.length ? revenuePoints.map((p) => t.overview.months[p.month - 1]) : t.overview.months.slice(-6)
+  ).map((label, i) => ({ label, value: occupancyTrendValues[i] }));
 
   const statusItems = [
-    { label: 'Occupied', value: data.occupiedCount, dotColor: STATUS_COLORS.occupied },
-    { label: 'Vacant', value: data.vacantCount, dotColor: STATUS_COLORS.vacant },
-    { label: 'Maintenance', value: data.maintenanceCount, dotColor: STATUS_COLORS.maintenance },
-    { label: 'Archived', value: data.archivedCount, dotColor: STATUS_COLORS.archived },
+    { label: t.propertyStatus.Occupied, value: data.occupiedCount, dotColor: STATUS_COLORS.occupied },
+    { label: t.propertyStatus.Vacant, value: data.vacantCount, dotColor: STATUS_COLORS.vacant },
+    { label: t.propertyStatus.Maintenance, value: data.maintenanceCount, dotColor: STATUS_COLORS.maintenance },
+    { label: t.propertyStatus.Archived, value: data.archivedCount, dotColor: STATUS_COLORS.archived },
   ];
 
   const typeItems = [...data.typeBreakdown]
     .sort((a, b) => b.count - a.count)
-    .map((t) => ({ label: TYPE_LABELS[t.type] ?? t.type, value: t.count }));
+    .map((item) => ({ label: t.propertyType[item.type], value: item.count }));
 
   return (
     <section>
       <div className={listStyles.header}>
         <div>
-          <p className={listStyles.eyebrow}>EXECUTIVE OVERVIEW</p>
-          <h1 className={listStyles.title}>Overview</h1>
-          <p className={listStyles.subtitle}>{data.propertyCount} active properties · Last 6 months</p>
+          <p className={listStyles.eyebrow}>{t.overview.eyebrow}</p>
+          <h1 className={listStyles.title}>{t.overview.title}</h1>
+          <p className={listStyles.subtitle}>{t.overview.subtitle(data.propertyCount)}</p>
         </div>
       </div>
 
       <div className={styles.kpiGrid}>
-        <StatTile label="Properties" value={data.propertyCount.toLocaleString('en-US')} caption={`${data.occupiedCount} occupied · ${data.vacantCount} vacant`} />
-        <StatTile label="Occupancy rate" value={`${data.occupancyRate}%`} />
         <StatTile
-          label="Monthly revenue"
-          value={formatCompactCurrency(data.monthlyRevenue)}
+          index={0}
+          label={t.overview.kpi.properties}
+          value={data.propertyCount}
+          caption={t.overview.kpi.propertiesCaption(data.occupiedCount, data.vacantCount)}
+        />
+        <StatTile index={1} label={t.overview.kpi.occupancyRate} value={data.occupancyRate} formatValue={(v) => `${v.toFixed(1)}%`} />
+        <StatTile
+          index={2}
+          label={t.overview.kpi.monthlyRevenue}
+          value={data.monthlyRevenue}
+          formatValue={currency}
           delta={
             revenueDelta === null
               ? undefined
-              : { label: `${revenueDelta >= 0 ? '+' : ''}${revenueDelta.toFixed(1)}% mo/mo`, isGood: revenueDelta >= 0 }
+              : {
+                  label: `${revenueDelta >= 0 ? '+' : ''}${revenueDelta.toFixed(1)}% ${t.overview.kpi.momSuffix}`,
+                  isGood: revenueDelta >= 0,
+                }
           }
         />
         <StatTile
-          label="Overdue payments"
-          value={data.overduePaymentCount.toLocaleString('en-US')}
-          caption={formatCompactCurrency(data.overdueAmount)}
+          index={3}
+          label={t.overview.kpi.overduePayments}
+          value={data.overduePaymentCount}
+          caption={currency(data.overdueAmount)}
         />
-        <StatTile label="Expiring contracts" value={data.expiringSoonContractCount.toLocaleString('en-US')} />
-        <StatTile label="Open maintenance" value={data.openMaintenanceCount.toLocaleString('en-US')} />
+        <StatTile index={4} label={t.overview.kpi.expiringContracts} value={data.expiringSoonContractCount} />
+        <StatTile index={5} label={t.overview.kpi.openMaintenance} value={data.openMaintenanceCount} />
       </div>
 
       <div className={styles.chartGrid}>
-        <ChartCard title="Revenue trend" subtitle="Paid rent collected per month" isEmpty={revenueTrend.length === 0}>
-          <LineTrendChart data={revenueTrend} formatValue={formatCompactCurrency} ariaLabel="Monthly revenue, last 6 months" />
+        <ChartCard
+          index={0}
+          title={t.overview.charts.revenueTitle}
+          subtitle={t.overview.charts.revenueSubtitle}
+          isEmpty={revenueTrend.length === 0}
+        >
+          <LineTrendChart data={revenueTrend} formatValue={currency} ariaLabel={t.overview.charts.revenueAriaLabel} />
         </ChartCard>
 
-        <ChartCard title="Occupancy trend" subtitle="Illustrative — historical occupancy is not tracked yet">
+        <ChartCard index={1} title={t.overview.charts.occupancyTitle} subtitle={t.overview.charts.occupancySubtitle}>
           <LineTrendChart
             data={occupancyTrend}
             formatValue={(v) => `${v}%`}
             color="#8a5510"
-            ariaLabel="Occupancy rate, last 6 months (illustrative)"
+            ariaLabel={t.overview.charts.occupancyAriaLabel}
           />
         </ChartCard>
       </div>
 
       <div className={styles.chartGrid}>
-        <ChartCard title="Status distribution" subtitle="Active and archived properties by status">
-          <BarListChart items={statusItems} formatValue={formatCompactNumber} />
+        <ChartCard index={2} title={t.overview.charts.statusTitle} subtitle={t.overview.charts.statusSubtitle}>
+          <BarListChart items={statusItems} formatValue={number} />
         </ChartCard>
 
-        <ChartCard title="Portfolio composition" subtitle="Active properties by type">
-          <BarListChart items={typeItems} formatValue={formatCompactNumber} />
+        <ChartCard index={3} title={t.overview.charts.compositionTitle} subtitle={t.overview.charts.compositionSubtitle}>
+          <BarListChart items={typeItems} formatValue={number} />
         </ChartCard>
       </div>
     </section>

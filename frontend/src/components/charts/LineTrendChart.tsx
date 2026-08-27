@@ -1,5 +1,6 @@
 import { useId, useRef, useState } from 'react';
 import styles from '../../styles/visuallyHidden.module.css';
+import chartStyles from './LineTrendChart.module.css';
 
 export interface TrendPoint {
   label: string;
@@ -90,8 +91,19 @@ export function LineTrendChart({ data, formatValue, color = '#275b43', ariaLabel
           </g>
         ))}
 
-        {n > 0 && <path d={areaPath} fill={`url(#${gradientId})`} stroke="none" />}
-        {n > 0 && <path d={linePath} fill="none" stroke={color} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+        {n > 0 && <path className={chartStyles.areaPath} d={areaPath} fill={`url(#${gradientId})`} stroke="none" />}
+        {n > 0 && (
+          <path
+            className={chartStyles.linePath}
+            d={linePath}
+            pathLength={1}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        )}
 
         {data.map((d, i) => (
           <text
@@ -108,7 +120,7 @@ export function LineTrendChart({ data, formatValue, color = '#275b43', ariaLabel
         ))}
 
         {last && (
-          <>
+          <g className={chartStyles.endMarker}>
             <circle cx={xFor(n - 1)} cy={yFor(last.value)} r={4} fill={color} stroke="#fff" strokeWidth={2} />
             <text
               x={xFor(n - 1)}
@@ -121,7 +133,7 @@ export function LineTrendChart({ data, formatValue, color = '#275b43', ariaLabel
             >
               {formatValue(last.value)}
             </text>
-          </>
+          </g>
         )}
 
         {hovered && hoverIndex !== null && (

@@ -1,0 +1,37 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: rgb(241 240 233 / 8%);
+}
+
+.option {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 9px;
+  border-radius: 4px;
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgb(241 240 233 / 55%);
+  transition:
+    background-color 150ms var(--ease-operational),
+    color 150ms var(--ease-operational);
+}
+
+.option:hover {
+  color: var(--color-warm-workspace);
+}
+
+.optionActive {
+  background: var(--color-asset-green);
+  color: var(--color-warm-workspace);
+}
+
+.optionActive:hover {
+  color: var(--color-warm-workspace);
+}

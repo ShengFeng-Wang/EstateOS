@@ -5,6 +5,7 @@ import { login } from '../api/auth';
 import { Button } from '../components/Button';
 import { ApiError } from '../lib/api-client';
 import { useAuthStore } from '../store/auth-store';
+import { useTranslation } from '../i18n/useTranslation';
 import styles from './LoginPage.module.css';
 import { LoginSpatialScene } from './LoginSpatialScene';
 
@@ -18,6 +19,7 @@ interface FieldErrors {
 export function LoginPage() {
   const navigate = useNavigate();
   const setSession = useAuthStore((state) => state.setSession);
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,10 +30,10 @@ export function LoginPage() {
   function validate(): FieldErrors {
     const errors: FieldErrors = {};
     if (!EMAIL_PATTERN.test(email)) {
-      errors.email = 'Enter a valid work email';
+      errors.email = t.login.errors.invalidEmail;
     }
     if (password.length < 8) {
-      errors.password = 'Password must contain at least 8 characters';
+      errors.password = t.login.errors.invalidPassword;
     }
     return errors;
   }
@@ -51,9 +53,9 @@ export function LoginPage() {
       navigate('/overview', { replace: true });
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setAuthError('Email or password is incorrect. Try again.');
+        setAuthError(t.login.errors.authError);
       } else {
-        setAuthError('Something went wrong. Please try again.');
+        setAuthError(t.login.errors.genericError);
       }
     } finally {
       setIsSubmitting(false);
@@ -64,29 +66,29 @@ export function LoginPage() {
     <div className={styles.page}>
       <section className={styles.spatial}>
         <LoginSpatialScene />
-        <span className={styles.wordmark}>ESTATE / OS</span>
+        <span className={styles.wordmark}>{t.login.wordmark}</span>
         <h1 className={styles.headline}>
-          Spatial asset
+          {t.login.headline[0]}
           <br />
-          intelligence
+          {t.login.headline[1]}
         </h1>
         <p className={styles.tagline}>
-          Observe the portfolio. Navigate the district.
+          {t.login.tagline[0]}
           <br />
-          Inspect every property as connected operational data.
+          {t.login.tagline[1]}
         </p>
         <div className={styles.breadcrumb}>
-          <span>01&nbsp;&nbsp;PORTFOLIO</span>
-          <span>02&nbsp;&nbsp;DISTRICT</span>
-          <span>03&nbsp;&nbsp;PROPERTY</span>
+          {t.login.breadcrumb.map((step) => (
+            <span key={step}>{step}</span>
+          ))}
         </div>
       </section>
 
       <section className={styles['form-panel']}>
         <div className={styles.formInner}>
-          <p className={styles.eyebrow}>SECURE WORKSPACE</p>
-          <h2 className={styles.title}>Welcome back.</h2>
-          <p className={styles.subtitle}>Sign in to review portfolio performance and property operations.</p>
+          <p className={styles.eyebrow}>{t.login.secureWorkspace}</p>
+          <h2 className={styles.title}>{t.login.welcomeBack}</h2>
+          <p className={styles.subtitle}>{t.login.subtitle}</p>
 
           {authError && (
             <div className={styles.authError} role="alert">
@@ -98,12 +100,12 @@ export function LoginPage() {
           <form className={styles.form} onSubmit={handleSubmit} noValidate>
             <div className={styles.field}>
               <label className={styles.label} htmlFor="email">
-                Work email
+                {t.login.emailLabel}
               </label>
               <input
                 id="email"
                 type="email"
-                placeholder="name@company.com"
+                placeholder={t.login.emailPlaceholder}
                 className={`${styles.input} ${fieldErrors.email ? styles.inputError : ''}`}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -114,7 +116,7 @@ export function LoginPage() {
 
             <div className={styles.field}>
               <label className={styles.label} htmlFor="password">
-                Password
+                {t.login.passwordLabel}
               </label>
               <input
                 id="password"
@@ -128,12 +130,12 @@ export function LoginPage() {
             </div>
 
             <Button type="submit" fullWidth disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in…' : 'Sign in'}
+              {isSubmitting ? t.login.signingIn : t.login.signIn}
             </Button>
           </form>
 
-          <p className={styles.demoAccess}>DEMO ACCESS&nbsp;&nbsp;admin@estateos.dev&nbsp;&nbsp;/&nbsp;&nbsp;estate2026</p>
-          <p className={styles.caption}>Internal asset operations · Portfolio demonstration</p>
+          <p className={styles.demoAccess}>{t.login.demoAccess}&nbsp;&nbsp;admin@estateos.dev&nbsp;&nbsp;/&nbsp;&nbsp;ChangeMe123!</p>
+          <p className={styles.caption}>{t.login.caption}</p>
         </div>
       </section>
     </div>
