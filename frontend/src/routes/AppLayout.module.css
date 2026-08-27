@@ -10,3 +10,8 @@
   padding: 34px 48px 48px;
   overflow-y: auto;
 }
+
+.mainFullBleed {
+  padding: 0;
+  overflow: hidden;
+}

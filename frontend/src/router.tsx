@@ -1,7 +1,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './routes/AppLayout';
 import { ContractsListPage } from './routes/ContractsListPage';
-import { DigitalTwinPage } from './routes/DigitalTwinPage';
 import { LoginPage } from './routes/LoginPage';
 import { MaintenanceListPage } from './routes/MaintenanceListPage';
 import { NotFoundPage } from './routes/NotFoundPage';
@@ -11,6 +10,7 @@ import { PropertiesListPage } from './routes/PropertiesListPage';
 import { PropertyDetailPage } from './routes/PropertyDetailPage';
 import { PropertyFormPage } from './routes/PropertyFormPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
+import { RealMapPage } from './routes/RealMapPage';
 import { TenantDetailPage } from './routes/TenantDetailPage';
 import { TenantsListPage } from './routes/TenantsListPage';
 
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { path: '/overview', element: <OverviewPage /> },
-          { path: '/digital-twin', element: <DigitalTwinPage /> },
+          { path: '/digital-twin', element: <RealMapPage /> },
           { path: '/properties', element: <PropertiesListPage /> },
           { path: '/properties/new', element: <PropertyFormPage /> },
           { path: '/properties/:id', element: <PropertyDetailPage /> },

@@ -4,23 +4,8 @@ import { listMaintenance } from '../../../api/maintenance';
 import type { MaintenanceRequest } from '../../../api/maintenance';
 import { listProperties } from '../../../api/properties';
 import type { Property } from '../../../api/properties';
+import { fetchAllPages } from '../../../lib/fetchAllPages';
 import type { ContractSignal, DigitalTwinProperty } from '../types/digitalTwin';
-
-const MAX_PAGE_SIZE = 100;
-const MAX_PAGES = 4; // supports up to 400 records, comfortably above the 50-200 property target
-
-async function fetchAllPages<T>(fetchPage: (page: number) => Promise<{ items: T[]; total: number }>): Promise<T[]> {
-  const first = await fetchPage(1);
-  const items = [...first.items];
-  const totalPages = Math.min(MAX_PAGES, Math.ceil(first.total / MAX_PAGE_SIZE));
-
-  for (let page = 2; page <= totalPages; page++) {
-    const next = await fetchPage(page);
-    items.push(...next.items);
-  }
-
-  return items;
-}
 
 /**
  * Adapts the property/contract/maintenance API responses into the Digital Twin's
@@ -29,9 +14,9 @@ async function fetchAllPages<T>(fetchPage: (page: number) => Promise<{ items: T[
  */
 export async function fetchDigitalTwinProperties(): Promise<DigitalTwinProperty[]> {
   const [properties, contracts, maintenanceRequests] = await Promise.all([
-    fetchAllPages<Property>((page) => listProperties({ page, pageSize: MAX_PAGE_SIZE })),
-    fetchAllPages<Contract>((page) => listContracts({ page, pageSize: MAX_PAGE_SIZE })),
-    fetchAllPages<MaintenanceRequest>((page) => listMaintenance({ page, pageSize: MAX_PAGE_SIZE })),
+    fetchAllPages<Property>((page, pageSize) => listProperties({ page, pageSize })),
+    fetchAllPages<Contract>((page, pageSize) => listContracts({ page, pageSize })),
+    fetchAllPages<MaintenanceRequest>((page, pageSize) => listMaintenance({ page, pageSize })),
   ]);
 
   const contractSignalByProperty = new Map<string, ContractSignal>();

@@ -1,0 +1,24 @@
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-observation-dark);
+  color: var(--color-warm-workspace);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-100%);
+}
+
+.name {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-muted-gray);
+}
