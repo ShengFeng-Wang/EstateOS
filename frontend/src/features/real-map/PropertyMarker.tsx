@@ -32,15 +32,16 @@ interface PropertyMarkerProps {
 
 export function PropertyMarker({ property, selected, onSelect }: PropertyMarkerProps) {
   const [hovered, setHovered] = useState(false);
-  const { lat, lon } = propertyGeoPosition(property.id, property.city, property.district);
+  const { lat, lon } = propertyGeoPosition(property.code, property.id, property.city, property.district);
   const color = STATUS_COLOR[property.status];
   const radius = useMemo(() => footprintRadius(property.size), [property.size]);
+  const active = hovered || selected;
+  const highlightColor = selected ? SIGNAL_COLOR : color;
 
   return (
     <EastNorthUpFrame lat={lat * DEG2RAD} lon={lon * DEG2RAD} height={0}>
-      {/* Building-sized, mostly-invisible hit target — clicking anywhere near the real
-          structure at this position selects it, since the real tile mesh isn't per-building
-          pickable. */}
+      {/* Building-sized hit target — clicking anywhere near the real structure at this
+          position selects it, since the real tile mesh isn't per-building pickable. */}
       <mesh
         position={[0, MARKER_HEIGHT_M, 0]}
         onPointerOver={(e) => {
@@ -54,32 +55,45 @@ export function PropertyMarker({ property, selected, onSelect }: PropertyMarkerP
         }}
       >
         <cylinderGeometry args={[radius, radius, MARKER_HEIGHT_M * 2, 16]} />
-        <meshBasicMaterial transparent opacity={hovered || selected ? 0.08 : 0} depthWrite={false} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* Visible locator pin, unaffected by the hit target's scale. */}
-      <mesh position={[0, MARKER_HEIGHT_M, 0]} scale={hovered || selected ? 1.3 : 1}>
-        <sphereGeometry args={[7, 16, 16]} />
+      {/* Always-visible ground highlight — marks this footprint as a managed asset before any
+          hover/click, since the invisible hit target above gives no visual cue on its own. */}
+      <mesh position={[0, 0.4, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={1}>
+        <circleGeometry args={[radius, 32]} />
+        <meshBasicMaterial
+          color={highlightColor}
+          transparent
+          opacity={active ? 0.32 : 0.16}
+          depthWrite={false}
+        />
+      </mesh>
+      <mesh position={[0, 0.45, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
+        <ringGeometry args={[radius - 1.2, radius, 40]} />
+        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 1 : 0.85} depthWrite={false} />
+      </mesh>
+
+      {/* Locator pin with a white halo ring so it reads against any real rooftop color. */}
+      <mesh position={[0, MARKER_HEIGHT_M, 0]} scale={active ? 1.3 : 1}>
+        <sphereGeometry args={[7.8, 16, 16]} />
+        <meshBasicMaterial color="#f1f0e9" />
+      </mesh>
+      <mesh position={[0, MARKER_HEIGHT_M, 0]} scale={active ? 1.3 : 1}>
+        <sphereGeometry args={[6.4, 16, 16]} />
         <meshStandardMaterial
-          color={selected ? SIGNAL_COLOR : color}
-          emissive={selected ? SIGNAL_COLOR : color}
-          emissiveIntensity={selected ? 0.9 : hovered ? 0.7 : 0.4}
+          color={highlightColor}
+          emissive={highlightColor}
+          emissiveIntensity={selected ? 0.9 : hovered ? 0.75 : 0.55}
         />
       </mesh>
       <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0, 4, MARKER_HEIGHT_M, 12]} />
-        <meshStandardMaterial color={selected ? SIGNAL_COLOR : color} transparent opacity={0.5} />
+        <meshStandardMaterial color={highlightColor} transparent opacity={0.6} />
       </mesh>
 
-      {selected && (
-        <mesh position={[0, 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[radius, radius + 3, 32]} />
-          <meshBasicMaterial color={SIGNAL_COLOR} transparent opacity={0.85} />
-        </mesh>
-      )}
-
       {hovered && !selected && (
-        <Html position={[0, MARKER_HEIGHT_M + 12, 0]} center distanceFactor={400} occlude={false}>
+        <Html position={[0, MARKER_HEIGHT_M + 14, 0]} center distanceFactor={400} occlude={false}>
           <div className={styles.label}>
             <span className={styles.name}>{property.name}</span>
             <span className={styles.meta}>

@@ -7,11 +7,13 @@ namespace EstateOS.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
+    // Bade is intentionally excluded here — its 5 properties are real named buildings on
+    // real roads (SeedRealBadeProperties below), not procedurally generated like the rest.
     private static readonly (string City, string District)[] Locations =
     [
         ("Taipei", "Xinyi"), ("Taipei", "Da'an"), ("Taipei", "Songshan"),
         ("Taipei", "Neihu"), ("Taipei", "Nangang"), ("New Taipei", "Banqiao"),
-        ("New Taipei", "Linkou"), ("Taoyuan", "Bade"), ("Taoyuan", "Zhongli"),
+        ("New Taipei", "Linkou"), ("Taoyuan", "Zhongli"),
     ];
 
     private static readonly (PropertyType Type, decimal MinRent, decimal MaxRent, decimal MinSize, decimal MaxSize, int MinRooms, int MaxRooms)[] Archetypes =
@@ -122,10 +124,79 @@ public static class DbSeeder
                 CreatedAt = now, UpdatedAt = now
             });
 
-            SeedPortfolio(db, now, count: 57, startIndex: 4);
+            SeedRealBadeProperties(db, now);
+            SeedPortfolio(db, now, count: 57, startIndex: 9);
         }
 
         await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Five real, named buildings in Taoyuan's Bade Redevelopment Zone (八德擴大重劃區), used
+    /// by the Real Map feature per direct product request — the map is scoped to this one zone
+    /// and asked for real buildings at real addresses. Names/roads verified via web search
+    /// (community.houseprice.tw's Bade community listing); exact GPS is not surveyed per
+    /// building — see frontend/src/features/real-map/realBadeBuildings.ts for the approximate
+    /// coordinates used and known-limitations.md for the caveat. Rents are not scraped from any
+    /// live listing (per the product owner's explicit choice to avoid that) — they're set to
+    /// reflect the relative price tier these buildings' real sale-price-per-ping data implies
+    /// (newer/premium builds priced higher, the older 成屋 building priced lower), scaled into
+    /// this app's existing Apartment/Townhouse rent bands for consistency with the rest of the
+    /// seeded portfolio, and cross-checked against 八德地政事務所's cited per-ping rent averages
+    /// for the district. These are estimates, not a specific unit's actual current asking rent.
+    /// </summary>
+    private static void SeedRealBadeProperties(AppDbContext db, DateTime now)
+    {
+        var properties = new[]
+        {
+            new Property
+            {
+                Id = Guid.NewGuid(), Code = "PPT-004", Name = "Chengzhong Dazi",
+                Address = "Zhongzheng 1st Rd", City = "Taoyuan", District = "Bade",
+                Type = PropertyType.Apartment, Status = PropertyStatus.Occupied,
+                MonthlyRent = 52000m, Size = 38m, Rooms = 2, Floor = 9,
+                Description = "New-build premium residence in the Bade Redevelopment Zone.",
+                CreatedAt = now, UpdatedAt = now
+            },
+            new Property
+            {
+                Id = Guid.NewGuid(), Code = "PPT-005", Name = "Heyuan Shouzhan",
+                Address = "Zhongzheng Rd", City = "Taoyuan", District = "Bade",
+                Type = PropertyType.Townhouse, Status = PropertyStatus.Occupied,
+                MonthlyRent = 58000m, Size = 45m, Rooms = 3, Floor = 4,
+                Description = "Townhouse-style unit near the redevelopment zone's commercial corridor.",
+                CreatedAt = now, UpdatedAt = now
+            },
+            new Property
+            {
+                Id = Guid.NewGuid(), Code = "PPT-006", Name = "Guanyi Shengeng 13",
+                Address = "Guangxing Rd", City = "Taoyuan", District = "Bade",
+                Type = PropertyType.Apartment, Status = PropertyStatus.Vacant,
+                MonthlyRent = 46000m, Size = 34m, Rooms = 2, Floor = 7,
+                Description = "Mid-rise apartment on Guangxing Road.",
+                CreatedAt = now, UpdatedAt = now
+            },
+            new Property
+            {
+                Id = Guid.NewGuid(), Code = "PPT-007", Name = "Lihpao Youth Era",
+                Address = "Fengde Rd", City = "Taoyuan", District = "Bade",
+                Type = PropertyType.Apartment, Status = PropertyStatus.Occupied,
+                MonthlyRent = 38000m, Size = 28m, Rooms = 1, Floor = 5,
+                Description = "Established residence on Fengde Road.",
+                CreatedAt = now, UpdatedAt = now
+            },
+            new Property
+            {
+                Id = Guid.NewGuid(), Code = "PPT-008", Name = "Deyi Yudi",
+                Address = "Qietong Rd", City = "Taoyuan", District = "Bade",
+                Type = PropertyType.Townhouse, Status = PropertyStatus.Maintenance,
+                MonthlyRent = 50000m, Size = 40m, Rooms = 3, Floor = 3,
+                Description = "Townhouse on Qietong Road, undergoing scheduled upkeep.",
+                CreatedAt = now, UpdatedAt = now
+            },
+        };
+
+        db.Properties.AddRange(properties);
     }
 
     // Fixed-seed generator for a demo-scale portfolio (Digital Twin needs 50-200 properties
