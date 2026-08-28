@@ -52,15 +52,22 @@ export function PropertyMarker({ property, selected, onSelect }: PropertyMarkerP
       </mesh>
 
       {/* Tall beacon — visible from far away (a flat ground disc shrinks to nothing at
-          distance; a vertical column stays legible), marking this as a managed asset before
-          any hover/click. */}
-      <mesh position={[0, BEACON_HEIGHT_M / 2, 0]} renderOrder={1}>
-        <cylinderGeometry args={[1.6, 1.6, BEACON_HEIGHT_M, 10]} />
-        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 0.85 : 0.55} depthWrite={false} />
+          distance; a vertical column stays legible) and drawn through occluding real
+          geometry (depthTest disabled) so a nearby taller real building can never fully
+          hide it, marking this as a managed asset before any hover/click. */}
+      <mesh position={[0, BEACON_HEIGHT_M / 2, 0]} renderOrder={998}>
+        <cylinderGeometry args={[6, 6, BEACON_HEIGHT_M, 16]} />
+        <meshBasicMaterial
+          color={highlightColor}
+          transparent
+          opacity={active ? 0.85 : 0.6}
+          depthWrite={false}
+          depthTest={false}
+        />
       </mesh>
-      <mesh position={[0, BEACON_HEIGHT_M, 0]} renderOrder={2}>
-        <sphereGeometry args={[3.2, 12, 12]} />
-        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 1 : 0.8} depthWrite={false} />
+      <mesh position={[0, BEACON_HEIGHT_M, 0]} renderOrder={999}>
+        <sphereGeometry args={[9, 16, 16]} />
+        <meshBasicMaterial color={highlightColor} transparent opacity={active ? 1 : 0.9} depthWrite={false} depthTest={false} />
       </mesh>
 
       {/* Ground highlight — the actual clickable footprint. */}
